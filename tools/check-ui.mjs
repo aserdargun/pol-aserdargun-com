@@ -28,11 +28,24 @@ const problems = [];
 
 /* ---------------------------- 0. identity -------------------------------- */
 /* The portfolio convention: every app is titled "<CODE> - <App name>" and
-   ships its own icon. Both live here so a rename cannot land in one place. */
+   ships the same icon set, drawn in the same palette. Both live here so a
+   rename cannot land in one place, and so the app cannot quietly stop
+   looking like the rest of the domain. */
 const IDENTITY = {
   title: 'POL - Programming Languages',
-  icon: 'favicon.svg'
+  /* file name → the link index.html must carry for it */
+  icons: [
+    { file: 'favicon.svg', rel: 'icon', attrs: 'type="image/svg+xml"' },
+    { file: 'icon.png', rel: 'icon', attrs: 'type="image/png" sizes="180x180"' },
+    { file: 'apple-icon.png', rel: 'apple-touch-icon', attrs: 'sizes="180x180"' }
+  ],
+  family: { background: '#121310', accent: '#c8ff36' },
+  pngSize: 180
 };
+const hrefOf = (tag) => ((tag.match(/href="([^"]+)"/) || [])[1] || '');
+/* Match by file name so an absolute or remote href is still recognised as the
+   declaration of that icon — and then reported for being absolute. */
+const iconFileOf = (tag) => hrefOf(tag).split('/').pop();
 
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const titleTag = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
@@ -40,35 +53,66 @@ if (titleTag !== IDENTITY.title) {
   problems.push(`index.html title is ${JSON.stringify(titleTag)}, expected ${JSON.stringify(IDENTITY.title)}`);
 }
 
-const iconTag = (html.match(/<link[^>]*rel="icon"[^>]*>/) || [])[0] || '';
-if (!iconTag) {
-  problems.push('index.html has no <link rel="icon">');
-} else {
-  const href = (iconTag.match(/href="([^"]+)"/) || [])[1];
-  if ((iconTag.match(/type="([^"]+)"/) || [])[1] !== 'image/svg+xml') {
-    problems.push(`the icon link is not declared image/svg+xml: ${iconTag}`);
+/* Each icon of the set must be declared, relatively, with the attributes the
+   family uses: a declaration that drifts is how a tab silently falls back to
+   the default globe. */
+const linkTags = html.match(/<link[^>]*rel="[^"]*icon[^"]*"[^>]*>/g) || [];
+for (const icon of IDENTITY.icons) {
+  const tag = linkTags.find((t) => iconFileOf(t) === icon.file);
+  if (!tag) {
+    problems.push(`index.html does not link ${icon.file}`);
+    continue;
   }
+  const href = hrefOf(tag);
   if (!href || href.startsWith('/') || /^[a-z]+:/i.test(href)) {
-    problems.push(`the icon href must be relative to index.html, found ${JSON.stringify(href)}`);
+    problems.push(`${icon.file}: the href must be relative to index.html, found ${JSON.stringify(href)}`);
   } else if (!fs.existsSync(path.resolve(ROOT, href))) {
-    problems.push(`the icon link points at a file that does not exist: ${href}`);
+    problems.push(`${icon.file}: the link points at a file that does not exist`);
+  }
+  if ((tag.match(/rel="([^"]+)"/) || [])[1] !== icon.rel) {
+    problems.push(`${icon.file}: rel is not ${JSON.stringify(icon.rel)} — ${tag}`);
+  }
+  for (const attr of icon.attrs.split(' ')) {
+    if (!tag.includes(attr)) problems.push(`${icon.file}: the link is missing ${attr} — ${tag}`);
   }
 }
 
-/* The icon is the whole app in a tab: it has to be one file that renders
-   offline, with no script, no network reference and no raster payload. */
-const iconPath = path.join(ROOT, IDENTITY.icon);
+/* The icon is the whole app in a tab: it renders offline, with no script, no
+   network reference and no raster payload, in the family palette. */
+const iconPath = path.join(ROOT, 'favicon.svg');
 if (!fs.existsSync(iconPath)) {
-  problems.push(`the icon file is missing: ${IDENTITY.icon}`);
+  problems.push('favicon.svg is missing');
 } else {
   const svg = fs.readFileSync(iconPath, 'utf8');
-  if (!/^\s*(<\?xml[^>]*\?>\s*)?<svg[\s>]/.test(svg)) problems.push(`${IDENTITY.icon}: not an SVG document`);
-  if (!/viewBox="/.test(svg)) problems.push(`${IDENTITY.icon}: no viewBox, it will not scale`);
+  if (!/^\s*(<\?xml[^>]*\?>\s*)?<svg[\s>]/.test(svg)) problems.push('favicon.svg: not an SVG document');
+  if (!/viewBox="/.test(svg)) problems.push('favicon.svg: no viewBox, it will not scale');
   for (const [what, re] of [['a <script> element', /<script/i], ['an external reference', /(xlink:)?href="(?!#)/i],
     ['a raster payload', /data:image\/(png|jpe?g|gif|webp)/i], ['an embedded font', /@font-face/i]]) {
-    if (re.test(svg)) problems.push(`${IDENTITY.icon}: contains ${what}`);
+    if (re.test(svg)) problems.push(`favicon.svg: contains ${what}`);
   }
-  if (/<image[\s>]/i.test(svg)) problems.push(`${IDENTITY.icon}: contains a raster <image>`);
+  if (/<image[\s>]/i.test(svg)) problems.push('favicon.svg: contains a raster <image>');
+  for (const [what, hex] of Object.entries(IDENTITY.family)) {
+    if (!svg.includes(hex)) problems.push(`favicon.svg: does not use the family ${what} colour ${hex}`);
+  }
+}
+
+/* The raster fallbacks must be the same square the family ships, or a device
+   that ignores the SVG gets a differently sized icon. */
+for (const icon of IDENTITY.icons.filter((i) => i.file.endsWith('.png'))) {
+  const file = path.join(ROOT, icon.file);
+  if (!fs.existsSync(file)) {
+    problems.push(`${icon.file} is missing`);
+    continue;
+  }
+  const buf = fs.readFileSync(file);
+  if (buf.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
+    problems.push(`${icon.file}: not a PNG`);
+    continue;
+  }
+  const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
+  if (w !== IDENTITY.pngSize || h !== IDENTITY.pngSize) {
+    problems.push(`${icon.file} is ${w}x${h}, the family ships ${IDENTITY.pngSize}x${IDENTITY.pngSize}`);
+  }
 }
 
 /* app.js rewrites document.title on every route, so it must not be able to
@@ -82,7 +126,7 @@ if (!/document\.title = TITLE;/.test(js)) {
   problems.push('app.js sets document.title from something other than TITLE');
 }
 
-console.log(`identity: title ${JSON.stringify(titleTag)}, icon ${JSON.stringify((iconTag.match(/href="([^"]+)"/) || [])[1] || null)}`);
+console.log(`identity: title ${JSON.stringify(titleTag)}, icons ${IDENTITY.icons.map((i) => i.file).join(' + ')}`);
 
 /* ------------------------- 1. the highlighter ---------------------------- */
 const sandbox = { window: {}, console };

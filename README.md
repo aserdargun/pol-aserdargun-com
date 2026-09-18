@@ -50,7 +50,8 @@ identically before listing the positions they take), a **capability matrix** of 
 
 ```
 index.html                 the shell: header, nav, script order
-favicon.svg                the app icon: one green brace pair, no raster, no build
+favicon.svg                the app icon: the portfolio family template, no raster payload
+icon.png apple-icon.png    the same icon at 180×180, rendered from favicon.svg
 app.js                     router and every view (no framework)
 assets/styles.css          two themes, one column of reading width
 assets/highlight.js        dependency-free tokenizer for all fifteen languages
@@ -111,10 +112,17 @@ It also holds the identity contract, because a title that lives in two files wil
 disagree with itself. The page is titled `POL - Programming Languages` — the portfolio convention
 `<CODE> - <app name>`, the same shape every other app on the domain uses. `index.html` carries it
 statically so the tab is right before any script runs, `app.js` re-applies it on every route, and
-`check-ui.mjs` fails if the two strings differ or if `favicon.svg` stops being a self-contained
-SVG (no script, no network reference, no raster payload). The icon reference is deliberately
-relative (`./favicon.svg`): the same artifact is also served from a subpath, which an absolute
-`/favicon.svg` would break — the deploy workflow enforces that too.
+`check-ui.mjs` fails if the two strings differ.
+
+The same check guards the icon set. Every app in the portfolio ships one dark rounded square with
+a lime circle, one black glyph and its three-letter code; POL's glyph is a brace pair with a
+single mark inside it. Three files carry it — `favicon.svg` (the scalable original),
+`icon.png` and `apple-icon.png` (180×180, rendered from that SVG) — and `check-ui.mjs` fails if
+any of them is missing, if a link stops being relative, if the PNGs stop being 180×180, or if the
+SVG stops being self-contained (no script, no network reference, no raster payload) or drifts
+away from the family palette (`#121310` / `#c8ff36`). The references stay relative (`./icon.png`)
+because the same artifact is also served from a subpath, which an absolute `/icon.png` would
+break — the deploy workflow enforces that too.
 
 When this was last run:
 
