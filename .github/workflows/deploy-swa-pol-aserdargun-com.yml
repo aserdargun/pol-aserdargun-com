@@ -1,0 +1,63 @@
+name: Deploy to Azure Static Web Apps (pol)
+
+# One authoritative production workflow for swa-pol-aserdargun-com.
+# The app has no build step: it is served exactly as committed, so the job
+# validates the corpus and then uploads the repository as the artifact.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swa-pol-aserdargun-com-production
+  cancel-in-progress: false
+
+jobs:
+  validate-and-deploy:
+    name: Validate and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      # Structure, escaping and every snippet whose toolchain exists on the
+      # runner: c, c++, python, javascript, bash and sql. The assembly
+      # examples target arm64 macOS and are skipped by --portable.
+      - name: Verify the corpus
+        run: node tools/verify.mjs --portable --no-write
+
+      - name: Assert the artifact is complete and relocatable
+        run: |
+          set -euo pipefail
+          for f in index.html app.js \
+                   assets/styles.css assets/highlight.js \
+                   data/languages.js data/concepts.js data/verification.js \
+                   data/recipes-basics.js data/recipes-data.js \
+                   data/recipes-paradigms.js data/recipes-errors.js \
+                   data/recipes-systems.js; do
+            test -f "$f" || { echo "missing from the artifact: $f"; exit 1; }
+          done
+          if grep -qE '(src|href)="/' index.html; then
+            echo "index.html contains an absolute path; it would break under a subpath"
+            exit 1
+          fi
+          echo "artifact verified: $(git ls-files | wc -l) files, no build step required"
+
+      - name: Deploy prebuilt static artifact
+        uses: Azure/static-web-apps-deploy@4d27395796ac319302594769cfe812bd207490b1 # v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SWA_POL_ASERDARGUN_COM }}
+          action: upload
+          app_location: "/"
+          output_location: ""
+          skip_app_build: true

@@ -89,9 +89,16 @@ and `takeaway` (what the fifteen versions show collectively). The app renders `t
 ```bash
 node tools/verify.mjs        # runs every snippet it can; exits non-zero on any mismatch
 node tools/verify.mjs --only graph
+node tools/verify.mjs --portable --no-write   # what CI runs: skips the arm64-macOS-only
+                                              # assembly, and does not rewrite the manifest
 node tools/check-ui.mjs      # tokenizer invariants + renders 13 routes in headless Chrome
 node tools/check-ui.mjs --shots
 ```
+
+CI runs the same corpus check on every push to `main`
+([.github/workflows/deploy-swa-pol-aserdargun-com.yml](.github/workflows/deploy-swa-pol-aserdargun-com.yml))
+and then uploads the repository as the Azure Static Web Apps artifact — there is no build step
+to run, so the validation *is* the release gate.
 
 `verify.mjs` loads the data files in a sandbox, writes each snippet to a temp file, runs the
 command in `run`, and compares stdout to `expect`. It then rewrites `data/verification.js`, which

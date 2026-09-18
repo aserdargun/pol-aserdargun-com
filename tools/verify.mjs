@@ -8,8 +8,13 @@
  *  3. behaviour: snippets whose toolchain exists here are actually run and
  *     their stdout compared against the declared `expect`
  *
- * Usage:  node tools/verify.mjs [--only <taskId>] [--quiet]
+ * Usage:  node tools/verify.mjs [--only <taskId>] [--quiet] [--portable] [--no-write]
  * Writes: data/verification.js  (window.VERIFICATION — used by the app badge)
+ *
+ *   --portable  skip snippets that are locked to one platform (the assembly
+ *               examples are arm64 macOS), so CI on Linux can run everything
+ *               else; structural and escaping checks always run
+ *   --no-write  do not rewrite data/verification.js (for read-only CI runs)
  * ------------------------------------------------------------------------- */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -22,6 +27,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const only = argv.includes('--only') ? argv[argv.indexOf('--only') + 1] : null;
 const quiet = argv.includes('--quiet');
+const portable = argv.includes('--portable');
+const writeManifest = !argv.includes('--no-write');
+const ON_ARM64_MACOS = process.platform === 'darwin' && process.arch === 'arm64';
 
 /* Which toolchains exist on this machine, and how to run a file of each kind. */
 const RUNNERS = {
@@ -60,7 +68,7 @@ const langIds = W.LANGUAGE_ORDER;
 
 const errors = [];
 const warnings = [];
-const results = { executed: [], failed: [], reviewed: [], skipped: [] };
+const results = { executed: [], failed: [], reviewed: [], skipped: [], platformSkipped: [] };
 
 /* ------------------------- 1. structural checks -------------------------- */
 for (const task of tasks) {
@@ -127,6 +135,12 @@ for (const task of tasks) {
       results.reviewed.push(`${task.id}/${lang}`);
       continue;
     }
+    /* The assembly snippets are written for arm64 macOS: the symbol names,
+       the addressing and the varargs convention are all platform-specific. */
+    if (portable && lang === 'asm' && !ON_ARM64_MACOS) {
+      results.platformSkipped.push(`${task.id}/${lang}`);
+      continue;
+    }
     if (s.expect == null) { results.skipped.push(`${task.id}/${lang}`); continue; }
 
     const dir = fs.mkdtempSync(path.join(tmpRoot, `${task.id}-${lang}-`));
@@ -156,6 +170,8 @@ if (!quiet) {
   console.log(`executed   : ${results.executed.length} (output matched)`);
   console.log(`failed     : ${results.failed.length}`);
   console.log(`not run    : ${results.reviewed.length} (no local toolchain) · ${results.skipped.length} (no expected output)`);
+  if (results.platformSkipped.length)
+    console.log(`platform   : ${results.platformSkipped.length} skipped (assembly targets arm64 macOS)`);
 
   if (results.failed.length) {
     console.log('\n--- FAILURES ---');
@@ -181,6 +197,11 @@ for (const id of results.executed) {
   const [task, lang] = id.split('/');
   (manifest[task] ||= {})[lang] = 'executed';
 }
+if (!writeManifest) {
+  console.log('\nmanifest not written (--no-write)');
+  process.exit(results.failed.length || errors.length ? 1 : 0);
+}
+
 const manifestPath = path.join(ROOT, 'data', 'verification.js');
 const body = Object.entries(manifest).map(([task, langs]) =>
   `    '${task}': { ${Object.keys(langs).map(l => `'${l}': 'executed'`).join(', ')} }`
