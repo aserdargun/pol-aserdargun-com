@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# screenshots produced by tools/check-ui.mjs --shots
+.shots/
+
+# local environment / secrets — a token must never end up here
+.env
+.env.*
+*.pem
+*.key
+node_modules/
+
+# editors
+.vscode/
+.idea/
+*.swp
