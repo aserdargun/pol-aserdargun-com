@@ -39,7 +39,7 @@ jobs:
       - name: Assert the artifact is complete and relocatable
         run: |
           set -euo pipefail
-          for f in index.html app.js \
+          for f in index.html app.js favicon.svg \
                    assets/styles.css assets/highlight.js \
                    data/languages.js data/concepts.js data/verification.js \
                    data/recipes-basics.js data/recipes-data.js \

@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  /* The identity contract: index.html carries the same title, and
+     tools/check-ui.mjs fails if the two ever drift apart. */
+  const TITLE = 'POL - Programming Languages';
+
   /* ------------------------------- data ---------------------------------- */
   const LANGUAGES = window.LANGUAGES || [];
   const BY_ID = window.LANGUAGE_BY_ID || {};
@@ -518,7 +522,7 @@
     });
     const input = document.getElementById('search-input');
     if (input && view === 'search') input.value = params.get('q') || '';
-    document.title = 'Same program, fifteen languages';
+    document.title = TITLE;
   }
 
   /* ------------------------------ actions -------------------------------- */

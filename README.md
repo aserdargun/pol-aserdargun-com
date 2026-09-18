@@ -50,6 +50,7 @@ identically before listing the positions they take), a **capability matrix** of 
 
 ```
 index.html                 the shell: header, nav, script order
+favicon.svg                the app icon: one green brace pair, no raster, no build
 app.js                     router and every view (no framework)
 assets/styles.css          two themes, one column of reading width
 assets/highlight.js        dependency-free tokenizer for all fifteen languages
@@ -62,7 +63,7 @@ data/recipes-errors.js     task 11
 data/recipes-systems.js    tasks 12–13
 data/verification.js       generated: which snippets were executed
 tools/verify.mjs           runs every snippet, compares stdout, writes verification.js
-tools/check-ui.mjs         highlighter invariants + headless-browser render checks
+tools/check-ui.mjs         identity + highlighter invariants + headless-browser render checks
 ```
 
 ### A snippet
@@ -105,6 +106,15 @@ command in `run`, and compares stdout to `expect`. It then rewrites `data/verifi
 is what the `✓ runs` badge in the UI reads. `check-ui.mjs` checks that the highlighter neither
 loses text nor leaks markup, and that each route renders content in a real browser (a thrown
 error leaves the app empty, which the DOM check catches).
+
+It also holds the identity contract, because a title that lives in two files will eventually
+disagree with itself. The page is titled `POL - Programming Languages` — the portfolio convention
+`<CODE> - <app name>`, the same shape every other app on the domain uses. `index.html` carries it
+statically so the tab is right before any script runs, `app.js` re-applies it on every route, and
+`check-ui.mjs` fails if the two strings differ or if `favicon.svg` stops being a self-contained
+SVG (no script, no network reference, no raster payload). The icon reference is deliberately
+relative (`./favicon.svg`): the same artifact is also served from a subpath, which an absolute
+`/favicon.svg` would break — the deploy workflow enforces that too.
 
 When this was last run:
 

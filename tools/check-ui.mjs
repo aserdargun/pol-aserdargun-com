@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /* ---------------------------------------------------------------------------
- * check-ui.mjs — two independent checks on the presentation layer.
+ * check-ui.mjs — three independent checks on the presentation layer.
+ *
+ *  0. identity: the title and the favicon are the app's fixed identity in the
+ *     portfolio. index.html may not rename the app, app.js may not drift away
+ *     from it, and the icon must be a self-contained SVG that the artifact
+ *     actually ships.
  *
  *  1. highlighter: every snippet is rendered through the tokenizer and the
  *     output is checked for balanced spans and fully escaped text (this is
@@ -20,6 +25,64 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const shots = process.argv.includes('--shots');
 const problems = [];
+
+/* ---------------------------- 0. identity -------------------------------- */
+/* The portfolio convention: every app is titled "<CODE> - <App name>" and
+   ships its own icon. Both live here so a rename cannot land in one place. */
+const IDENTITY = {
+  title: 'POL - Programming Languages',
+  icon: 'favicon.svg'
+};
+
+const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const titleTag = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
+if (titleTag !== IDENTITY.title) {
+  problems.push(`index.html title is ${JSON.stringify(titleTag)}, expected ${JSON.stringify(IDENTITY.title)}`);
+}
+
+const iconTag = (html.match(/<link[^>]*rel="icon"[^>]*>/) || [])[0] || '';
+if (!iconTag) {
+  problems.push('index.html has no <link rel="icon">');
+} else {
+  const href = (iconTag.match(/href="([^"]+)"/) || [])[1];
+  if ((iconTag.match(/type="([^"]+)"/) || [])[1] !== 'image/svg+xml') {
+    problems.push(`the icon link is not declared image/svg+xml: ${iconTag}`);
+  }
+  if (!href || href.startsWith('/') || /^[a-z]+:/i.test(href)) {
+    problems.push(`the icon href must be relative to index.html, found ${JSON.stringify(href)}`);
+  } else if (!fs.existsSync(path.resolve(ROOT, href))) {
+    problems.push(`the icon link points at a file that does not exist: ${href}`);
+  }
+}
+
+/* The icon is the whole app in a tab: it has to be one file that renders
+   offline, with no script, no network reference and no raster payload. */
+const iconPath = path.join(ROOT, IDENTITY.icon);
+if (!fs.existsSync(iconPath)) {
+  problems.push(`the icon file is missing: ${IDENTITY.icon}`);
+} else {
+  const svg = fs.readFileSync(iconPath, 'utf8');
+  if (!/^\s*(<\?xml[^>]*\?>\s*)?<svg[\s>]/.test(svg)) problems.push(`${IDENTITY.icon}: not an SVG document`);
+  if (!/viewBox="/.test(svg)) problems.push(`${IDENTITY.icon}: no viewBox, it will not scale`);
+  for (const [what, re] of [['a <script> element', /<script/i], ['an external reference', /(xlink:)?href="(?!#)/i],
+    ['a raster payload', /data:image\/(png|jpe?g|gif|webp)/i], ['an embedded font', /@font-face/i]]) {
+    if (re.test(svg)) problems.push(`${IDENTITY.icon}: contains ${what}`);
+  }
+  if (/<image[\s>]/i.test(svg)) problems.push(`${IDENTITY.icon}: contains a raster <image>`);
+}
+
+/* app.js rewrites document.title on every route, so it must not be able to
+   disagree with the static document it was loaded from. */
+const js = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
+const jsTitle = (js.match(/const TITLE = '([^']*)'/) || [])[1];
+if (jsTitle !== IDENTITY.title) {
+  problems.push(`app.js TITLE is ${JSON.stringify(jsTitle)}, expected ${JSON.stringify(IDENTITY.title)}`);
+}
+if (!/document\.title = TITLE;/.test(js)) {
+  problems.push('app.js sets document.title from something other than TITLE');
+}
+
+console.log(`identity: title ${JSON.stringify(titleTag)}, icon ${JSON.stringify((iconTag.match(/href="([^"]+)"/) || [])[1] || null)}`);
 
 /* ------------------------- 1. the highlighter ---------------------------- */
 const sandbox = { window: {}, console };
@@ -59,7 +122,7 @@ console.log(`highlighter: ${checked} snippets tokenized, ${problems.length} prob
 /* --------------------------- 2. real browser ----------------------------- */
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const routes = [
-  { hash: '#/', expect: ['Fifteen ways to write the same program', 'Prolog', 'Capability matrix'] },
+  { hash: '#/', expect: [IDENTITY.title, 'Fifteen ways to write the same program', 'Prolog', 'Capability matrix'] },
   { hash: '#/tasks', expect: ['Conditionals and loops', 'Graph reachability'] },
   { hash: '#/task/graph', expect: ['reachable=b,c,d,e', 'Warshall', 'recursive CTE'] },
   { hash: '#/task/factorial', expect: ['factorial(5)=120', 'Datalog'] },
