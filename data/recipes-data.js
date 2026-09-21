@@ -8,7 +8,7 @@ window.RECIPES_DATA = [
     title: 'Recursion',
     prompt: 'Compute 5! twice: once with a function that calls itself, and once with a loop. Print: factorial(5)=120 iterative(5)=120',
     why: 'Recursion is where the two halves of programming meet: the mathematical definition and the machine that has to run it. This task shows how each language expresses a self-calling function, and what it costs — a stack frame, a tail call, a fixpoint, or nothing at all because the pattern is hidden inside the standard library.',
-    takeaway: 'The recursive definition is nearly identical everywhere: a base case, a smaller call, a combination. What differs is the *machinery around it*. Assembly shows what a call actually costs: you push a frame, save n, call, reload. C, C++ and Java give you functions but no guarantee that the compiler will turn tail recursion into a loop — Haskell and OCaml do the opposite and treat recursion as the normal way to repeat. SQL, Datalog and Prolog have no stack in user code at all: recursion is a rule that derives new rows or facts until nothing new appears, and Datalog additionally *guarantees* it terminates.',
+    takeaway: 'Recursive functions need a base case and a smaller subproblem. Tail-call optimization and stack use depend on the language and implementation. SQL and Soufflé derive rows through recursive rules; Prolog uses predicate calls and backtracking. Classical finite-domain Datalog terminates, but the Soufflé arithmetic here needs an explicit bound.',
     snippets: {
       asm: {
         file: 'factorial.s', effort: 5,
@@ -178,7 +178,7 @@ func main() {
     }
 }`,
         expect: 'factorial(5)=120 iterative(5)=120',
-        note: 'The JVM has no tail-call optimisation by design (it would break stack traces and security checks), so recursion here is a stylistic choice with a real stack cost.'
+        note: 'Ordinary Java calls have no portable tail-call optimization guarantee; deep recursion can overflow the stack. The iterative form avoids that dependency.'
       },
       csharp: {
         file: 'Program.cs', effort: 1,
@@ -320,7 +320,7 @@ main :-
     fact(5, F),
     format("factorial(5)=~w iterative(5)=~w~n", [F, F]).`,
         expect: 'factorial(5)=120 iterative(5)=120',
-        note: 'The recursive clause reads as the mathematical definition, and unification means `fact(5, F)` also runs in reverse — `fact(N, 120)` enumerates candidates. That is not a function call, it is a relation.'
+        note: 'This definition computes F from a known non-negative N. The arithmetic tests and is/2 require instantiated inputs; fact(N, 120) does not run the calculation backwards. Constraint arithmetic would require a different definition.'
       },
       datalog: {
         file: 'factorial.dl', effort: 3, expect: null,
@@ -331,7 +331,7 @@ fact(n + 1, value * (n + 1)) :-               // the recursive case
     fact(n, value), n < 5.
 
 .output fact`,
-        note: 'Recursion as a rule: new rows keep being derived until the rule adds nothing. The `n < 5` guard is what terminates it — and because Datalog forbids function symbols, every program written this way is guaranteed to terminate.'
+        note: 'The n < 5 guard bounds this derivation. Soufflé extends classical Datalog with arithmetic, so removing a bound can produce a non-terminating program.'
       }
     }
   },
@@ -342,7 +342,7 @@ fact(n + 1, value * (n + 1)) :-               // the recursive case
     title: 'Collections: sum, filter, maximum',
     prompt: 'Given the numbers 1, 2, 3, 4, 5 find their total, the subset that is even, and the largest value. Print exactly: sum=15 evens=[2,4] max=5',
     why: 'Containers are where the difference between a library and a language becomes visible. Some languages ship lists and maps as syntax; others expect you to build them or import them; two of the fifteen have no container in the language at all and expect you to model the data relationally.',
-    takeaway: 'The three operations are the same everywhere and differ mainly in *who writes the loop*: you do, in C and Assembly; the standard library does, in Python, JavaScript, Rust, Go and the functional languages. The deeper split is between *sequence* and *set*. Python, JavaScript, C++, Rust, Java, C#, Go and Bash all think in sequences you iterate in order. SQL, Prolog and Datalog think in sets and relations: "the evens" is not a filtered array, it is a selection, and the order of the answer is not defined unless you ask for one.',
+    takeaway: 'The same total, filter and maximum can be expressed by explicit loops, library operations or relational queries. Go uses a loop here; Prolog also supports ordered lists. SQL generally uses bag semantics, while Datalog relations are sets. Output order needs an explicit convention in relational examples.',
     snippets: {
       asm: {
         file: 'collections.s', effort: 5, expect: 'sum=15 evens=[2,4] max=5',
@@ -472,7 +472,7 @@ int main() {
     println!("sum={} evens=[{}] max={}", sum, evens_text, max);
 }`,
         expect: 'sum=15 evens=[2,4] max=5',
-        note: 'Iterators are lazy: the chain compiles to the same single pass a C loop makes, and `unwrap()` is where Rust makes you acknowledge that a list could be empty.'
+        note: 'Iterator adapters defer work until consumed. Separate sum, filter and maximum operations may make separate passes; optimization depends on the compiler. unwrap acknowledges that a maximum may be absent for empty input.'
       },
       go: {
         file: 'collections.go', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
@@ -539,7 +539,7 @@ public class Collections {
 
 Console.WriteLine($"sum={nums.Sum()} evens=[{string.Join(",", nums.Where(n => n % 2 == 0))}] max={nums.Max()}");`,
         expect: 'sum=15 evens=[2,4] max=5',
-        note: 'LINQ makes the whole computation one expression, and this is the shortest program of the fifteen that still uses a real type system and a real container type.'
+        note: 'LINQ expresses filtering and aggregation with standard-library operations. Each enumeration has a cost; concise syntax does not itself establish the number of passes or runtime speed.'
       },
       python: {
         file: 'collections.py', effort: 1, expect: 'sum=15 evens=[2,4] max=5',
@@ -781,7 +781,7 @@ int main() {
     // std::sort(a.begin(), a.end());
 }`,
         expect: 'sorted=[1,2,3,5,8,9]',
-        note: 'Written out to match the other languages, with the one-line alternative noted. std::sort is introsort — a hybrid of quicksort, heapsort and insertion sort for small ranges.'
+        note: 'Insertion sort is written out to match the task. std::sort is a separate library option with specified complexity requirements; implementations commonly use introsort, but that exact algorithm is not mandated.'
       },
       rust: {
         file: 'sorting.rs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
@@ -867,7 +867,7 @@ public class Sorting {
     }
 }`,
         expect: 'sorted=[1,2,3,5,8,9]',
-        note: 'An int[] is a fixed-size array you index; a List<Integer> would be the collection type. Arrays are passed by reference, so the sort mutates the caller\'s array — exactly as in Go.'
+        note: 'Java passes an array reference by value. The copied reference still points to the same array, so element mutation is visible to the caller; assigning the parameter to another array would not replace the caller’s variable.'
       },
       csharp: {
         file: 'Program.cs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
@@ -922,7 +922,7 @@ console.log('sorted=[%s]', insertionSort(nums).join(','));
 // The built-in is nums.sort((x, y) => x - y): without the comparator it sorts
 // as strings, so [10, 9] would come out as [10, 9] "alphabetically".`,
         expect: 'sorted=[1,2,3,5,8,9]',
-        note: 'The same C-shaped loop, but the built-in sort is a trap: JavaScript\'s Array.prototype.sort compares strings unless you pass a comparator — a direct consequence of having one numeric type and coercive equality.'
+        note: 'The explicit loop compares numbers. Array.prototype.sort instead compares string representations by default; use a numeric comparator such as (a, b) => a - b for a numeric sort.'
       },
       bash: {
         file: 'sorting.sh', effort: 4, expect: 'sorted=[1,2,3,5,8,9]',
@@ -956,7 +956,7 @@ WITH nums(n) AS (VALUES (5), (3), (8), (1), (9), (2)),
      ordered AS (SELECT n FROM nums ORDER BY n)
 SELECT 'sorted=[' || group_concat(n, ',') || ']' AS result FROM ordered;`,
         expect: 'sorted=[1,2,3,5,8,9]',
-        note: 'You cannot express insertion sort in plain SQL, and you would not want to. The declarative statement of the goal is one line — and the query planner is free to use an index instead of sorting at all.'
+        note: 'This example requests ORDER BY rather than implementing insertion sort. The engine chooses the plan. Recursive SQL can encode algorithms, but doing so would obscure the relational comparison here.'
       },
       haskell: {
         file: 'sorting.hs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
@@ -1011,7 +1011,7 @@ main :-
     atomic_list_concat(Sorted, ',', Text),
     format("sorted=[~w]~n", [Text]).`,
         expect: 'sorted=[1,2,3,5,8,9]',
-        note: 'The base cases and the recursive case are separate clauses, and the third argument of insert is the *result*, not an output parameter. Note that this same predicate can be run with the result given and the input unbound.'
+        note: 'The final argument carries the resulting list. Arithmetic comparisons require known numeric operands, so this insertion-sort definition is intended for a known input list; arbitrary reverse queries are not guaranteed to work.'
       },
       datalog: {
         file: 'sorting.dl', effort: 4, expect: null,
@@ -1025,7 +1025,7 @@ nums(5). nums(3). nums(8). nums(1). nums(9). nums(2).
 rank(n, r) :- nums(n), r = 1 + count : { nums(m) : m < n }.
 
 .output rank`,
-        note: 'There is no insertion sort here, and there cannot be: Datalog has no sequences, no indices and no notion of "before". Sorting as a *list* is meaningless; what you can compute is a rank, and ordering is imposed at output time by the consumer.'
+        note: 'No insertion-sort implementation is supplied here. Relations do not have intrinsic row order, but positions and ranks can be represented as explicit data. Consumers can order the resulting tuples.'
       }
     }
   },
@@ -1036,7 +1036,7 @@ rank(n, r) :- nums(n), r = 1 + count : { nums(m) : m < n }.
     title: 'Text processing (word frequency)',
     prompt: 'Take the sentence "the cat sat on the mat the cat", count how often each word appears, and print the two most frequent words as word=count, most frequent first: the=3 then cat=2',
     why: 'Text is where programming languages meet the real world of messy input and formatted output. This task needs iteration, a lookup structure, comparison and formatting — so it exposes the difference between languages that make strings first-class and those that treat them as byte arrays.',
-    takeaway: 'The same algorithm — split, count, sort, print two lines — requires a hash map in seven languages, a library counter in two more, a hand-built association list in C and Assembly, and a genuinely different shape in the declarative three. The most striking result is Bash: one pipeline of four small programs (`tr`, `sort`, `uniq`, `awk`) does what the others need a data structure for, because it delegates the counting to the operating system. In SQL, Prolog and Datalog the sentence must first become a set of rows, tokens or facts before the query can even be written — that impedance is the price of declarativity.',
+    takeaway: 'The examples compare splitting, counting and ranking through maps, grouped sequences, pipelines and queries. Some use pre-tokenized input or reduced output; the notes identify those boundaries. The same requested result does not mean every version performs the same algorithm or amount of work.',
     snippets: {
       asm: {
         file: 'wordcount.s', effort: 5, expect: 'the=3',
@@ -1314,7 +1314,7 @@ GROUP BY w
 ORDER BY COUNT(*) DESC, w
 LIMIT 2;`,
         expect: 'the=3\ncat=2',
-        note: 'Counting is a GROUP BY and ranking is an ORDER BY — no hash map appears in your code, yet the engine will build one. Note the data is a table of words: SQL has no split function in the standard.'
+        note: 'GROUP BY counts rows and ORDER BY ranks them. The query planner may choose different aggregation strategies; a hash table is not guaranteed. This SQLite example starts from token rows rather than splitting the original sentence.'
       },
       haskell: {
         file: 'wordcount.hs', effort: 2, expect: 'the=3\ncat=2',

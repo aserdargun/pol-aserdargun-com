@@ -18,6 +18,7 @@
  * ------------------------------------------------------------------------- */
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -138,6 +139,21 @@ vm.runInContext(fs.readFileSync(path.join(ROOT, 'assets/highlight.js'), 'utf8'),
 const W = sandbox.window;
 const tasks = Object.keys(W).filter((k) => k.startsWith('RECIPES_')).flatMap((k) => W[k]);
 
+const ids = new Set(W.LANGUAGES.map(l => l.id));
+for (const [name, entries] of [['language', W.LANGUAGES], ['task', tasks], ['concept', W.CONCEPTS]]) {
+  if (new Set(entries.map(e => e.id)).size !== entries.length) problems.push(`${name}: duplicate id`);
+}
+for (const row of W.MATRIX) {
+  for (const id of ids) if (!Object.hasOwn(W.MATRIX_LEGEND, row.cells[id])) problems.push(`${row.capability}/${id}: invalid rating`);
+}
+for (const concept of W.CONCEPTS) for (const axis of concept.differs) for (const position of axis.positions) {
+  for (const id of position.langs) if (!ids.has(id)) problems.push(`${concept.id}: unknown language ${id}`);
+}
+for (const [taskId, langs] of Object.entries(W.VERIFICATION)) for (const [id, status] of Object.entries(langs)) {
+  const snippet = tasks.find(t => t.id === taskId)?.snippets[id];
+  if (!snippet || snippet.na || status !== 'executed') problems.push(`invalid execution evidence: ${taskId}/${id}`);
+}
+
 let checked = 0;
 for (const task of tasks) {
   for (const [lang, s] of Object.entries(task.snippets)) {
@@ -164,13 +180,24 @@ for (const task of tasks) {
 console.log(`highlighter: ${checked} snippets tokenized, ${problems.length} problem(s)`);
 
 /* --------------------------- 2. real browser ----------------------------- */
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+// Prefer a dedicated headless executable when already installed. Desktop
+// Chrome can emit the DOM and then hang during shutdown on some macOS hosts.
+const browserCache = process.env.PLAYWRIGHT_BROWSERS_PATH || path.join(os.homedir(),
+  process.platform === 'darwin' ? 'Library/Caches/ms-playwright' : '.cache/ms-playwright');
+const headlessChrome = fs.existsSync(browserCache) ? fs.readdirSync(browserCache)
+  .filter(name => name.startsWith('chromium_headless_shell-'))
+  .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+  .flatMap(name => ['chrome-headless-shell-mac-arm64/chrome-headless-shell',
+    'chrome-headless-shell-mac-x64/chrome-headless-shell', 'chrome-headless-shell-linux64/chrome-headless-shell']
+    .map(binary => path.join(browserCache, name, binary)))
+  .find(binary => fs.existsSync(binary)) : null;
+const CHROME = process.env.POL_CHROME || headlessChrome || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const routes = [
   { hash: '#/', expect: [IDENTITY.title, 'Fifteen ways to write the same program', 'Prolog', 'Capability matrix'] },
   { hash: '#/tasks', expect: ['Conditionals and loops', 'Graph reachability'] },
   { hash: '#/task/graph', expect: ['reachable=b,c,d,e', 'Warshall', 'recursive CTE'] },
   { hash: '#/task/factorial', expect: ['factorial(5)=120', 'Datalog'] },
-  { hash: '#/task/hof', expect: ['Not expressible in this language', 'sum=10'] },
+  { hash: '#/task/hof', expect: ['Outside this example’s scope', 'sum=10'] },
   { hash: '#/languages', expect: ['Datalog', 'Machine'] },
   { hash: '#/language/python', expect: ['The twelve axes', 'average ceremony', 'duck'] },
   { hash: '#/concepts', expect: ['Fundamentals', 'sum types'] },
@@ -181,23 +208,37 @@ const routes = [
   { hash: '#/search?q=backtracking', expect: ['matches for', 'backtrack'] }
 ];
 
+for (const [prefix, entries] of [['task', tasks], ['language', W.LANGUAGES], ['concept', W.CONCEPTS]]) {
+  for (const entry of entries) {
+    const hash = `#/${prefix}/${entry.id}`;
+    if (!routes.some(route => route.hash === hash)) routes.push({ hash, expect: [] });
+  }
+}
+routes.push({ hash: '#/about', expect: ['Scope &amp; verification', 'aserdargun.com', 'Primary references'] });
+
 if (!fs.existsSync(CHROME)) {
   console.log('chrome not found — skipped the browser check');
 } else {
+  console.log(`browser executable: ${CHROME}`);
   const outDir = path.join(ROOT, '.shots');
   if (shots) fs.mkdirSync(outDir, { recursive: true });
 
   for (const route of routes) {
     const url = 'file://' + path.join(ROOT, 'index.html') + route.hash;
-    const args = ['--headless', '--disable-gpu', '--virtual-time-budget=4000', '--dump-dom', url];
+    const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'pol-ui-'));
+    const flags = ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
+      '--disable-background-networking', `--user-data-dir=${profile}`, '--virtual-time-budget=4000'];
+    const args = [...flags, '--dump-dom', url];
     let dom = '';
     try {
-      dom = execFileSync(CHROME, args, { stdio: 'pipe', timeout: 60000 }).toString();
+      dom = execFileSync(CHROME, args, { stdio: 'pipe', timeout: 20000, killSignal: 'SIGKILL' }).toString();
     } catch (e) {
       problems.push(`${route.hash}: chrome failed — ${String(e.message).slice(0, 200)}`);
       continue;
+    } finally {
+      fs.rmSync(profile, { recursive: true, force: true, maxRetries: 3 });
     }
-    const app = (dom.match(/<main id="app">([\s\S]*)<\/main>/) || [])[1] || '';
+    const app = (dom.match(/<main id="app"[^>]*>([\s\S]*)<\/main>/) || [])[1] || '';
     const text = app.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     if (text.length < 200) {
       problems.push(`${route.hash}: #app is essentially empty (${text.length} chars) — a script error?`);
@@ -209,9 +250,14 @@ if (!fs.existsSync(CHROME)) {
 
     if (shots) {
       const name = (route.hash.replace(/[#/?=,&]/g, '_').replace(/^_+/, '') || 'overview') + '.png';
-      execFileSync(CHROME, ['--headless', '--disable-gpu', '--virtual-time-budget=4000',
-        '--window-size=1400,1200', `--screenshot=${path.join(outDir, name)}`, url],
-        { stdio: 'pipe', timeout: 60000 });
+      const shotProfile = fs.mkdtempSync(path.join(os.tmpdir(), 'pol-shot-'));
+      try {
+        execFileSync(CHROME, ['--headless', '--disable-gpu', '--no-first-run', `--user-data-dir=${shotProfile}`, '--virtual-time-budget=4000',
+          '--window-size=1400,1200', `--screenshot=${path.join(outDir, name)}`, url],
+          { stdio: 'pipe', timeout: 20000, killSignal: 'SIGKILL' });
+      } finally {
+        fs.rmSync(shotProfile, { recursive: true, force: true, maxRetries: 3 });
+      }
     }
   }
   if (shots) console.log('screenshots written to ' + outDir);

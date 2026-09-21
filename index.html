@@ -14,32 +14,33 @@
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
+<a class="skip-link" href="#app">Skip to content</a>
 
 <header class="top">
-  <a class="brand" href="#/">same&nbsp;program <span>· fifteen languages</span></a>
-  <nav class="nav">
+  <a class="brand" href="#/">POL <span>· Programming Languages</span></a>
+  <nav class="nav" aria-label="Main navigation">
     <a href="#/">overview</a>
     <a href="#/tasks">tasks</a>
     <a href="#/languages">languages</a>
     <a href="#/concepts">fundamentals</a>
     <a href="#/matrix">matrix</a>
     <a href="#/compare">compare</a>
+    <a href="#/about">about &amp; sources</a>
   </nav>
   <div class="search">
     <input id="search-input" type="search" placeholder="search code & notes  ( / )" aria-label="Search">
-    <button class="btn ghost" data-act="theme" title="Switch between dark and light">◐</button>
+    <button class="btn ghost" data-act="theme" aria-label="Switch color theme" title="Switch between dark and light">◐</button>
   </div>
 </header>
 
-<main id="app"></main>
+<main id="app" tabindex="-1"></main>
+<noscript><p>Enable JavaScript to browse POL, or read the <a href="programming-languages.md">language catalog</a>.</p></noscript>
 
 <footer>
-  <p><b>What this is.</b> One working directory, no build step and no network: open
-  <code>index.html</code> directly, or serve the folder. Everything it renders comes from the
-  <code>data/</code> files in this repository, and every code example is real — snippets were executed
-  and their output compared where a toolchain existed, and are marked <span class="badge">reviewed</span>
-  otherwise. The <code>tools/verify.mjs</code> script re-checks all of them and rewrites the badge data.</p>
-  <p class="muted">Thirteen tasks · fifteen languages · the same algorithm, fifteen ways.</p>
+  <p><b>POL · Programming Languages.</b> Explore the same tasks across fifteen languages.
+  English-language content; code and documented output are displayed locally. Execution badges
+  distinguish recorded checks from hand-reviewed examples.</p>
+  <p><a href="https://aserdargun.com/">aserdargun.com</a> · <a href="https://gpu.aserdargun.com/">GPU foundations</a> · <a href="https://gex.aserdargun.com/">GEX experiments</a> · <a href="#/about">Scope &amp; sources</a></p>
 </footer>
 
 <div id="toast" role="status" aria-live="polite"></div>

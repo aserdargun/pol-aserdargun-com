@@ -14,7 +14,7 @@ window.CONCEPTS = [
     title: 'What a program is',
     tagline: 'The deepest difference in the list, and the one everything else follows from.',
     same: [
-      'Every one of the fifteen can express a computation that produces a value or an effect — all fifteen solve the same thirteen tasks in this app.',
+      'Every language here can express computations; some task entries are deliberately omitted or reduced, with their scope explained.',
       'Every one has a notion of a named, reusable unit of work: a label, a function, a predicate, a rule, a query block, or a class.',
       'Every one is ultimately executed by the same kind of machine: a CPU executing instructions, or an interpreter that itself is one.'
     ],
@@ -46,7 +46,7 @@ window.CONCEPTS = [
           { label: 'A JavaScript engine JIT-compiles functions', langs: ['js'] },
           { label: 'Another program (the shell) launches programs', langs: ['bash'] },
           { label: 'A query or a proof is evaluated against data', langs: ['sql', 'prolog', 'datalog'] },
-          { label: 'GHC compiles to native code through graph reduction', langs: ['haskell', 'ocaml'] }
+          { label: 'GHC (Haskell) and OCaml compilers can produce native code', langs: ['haskell', 'ocaml'] }
         ]
       },
       {
@@ -55,7 +55,7 @@ window.CONCEPTS = [
           { label: 'One line, no ceremony', langs: ['python', 'js', 'bash', 'sql', 'haskell', 'ocaml', 'rust'], note: 'rust needs fn main, but it is one declaration' },
           { label: 'An entry symbol and a stack frame', langs: ['asm', 'c', 'cpp'] },
           { label: 'A package plus an entry function', langs: ['go'], note: 'package main + func main' },
-          { label: 'A class with a specific static method', langs: ['java', 'csharp'] },
+          { label: 'An entry method; modern Java and C# also offer compact/top-level forms', langs: ['java', 'csharp'] },
           { label: 'A fact and an output directive', langs: ['datalog'] },
           { label: 'A predicate and a query', langs: ['prolog'] }
         ]
@@ -70,14 +70,14 @@ window.CONCEPTS = [
     same: [
       'All fifteen distinguish numbers from text somewhere, even if only by convention (Assembly and Bash: by which instruction or command you use).',
       'All fifteen can express "a collection of things of the same kind" — as a language feature, a library type, or a relation.',
-      'In all fifteen the types exist to catch mistakes early. What differs is what "early" means and what counts as a mistake.'
+      'Type distinctions help define valid operations. Static checking, dynamic checks and programmer conventions offer different levels of protection.'
     ],
     differs: [
       {
         axis: 'When types are checked',
         positions: [
           { label: 'Never (the hardware has words, not types)', langs: ['asm'] },
-          { label: 'At compile time, always', langs: ['c', 'cpp', 'rust', 'go', 'java', 'csharp', 'haskell', 'ocaml'] },
+          { label: 'Static checking, with some checks or unsafe operations deferred to runtime', langs: ['c', 'cpp', 'rust', 'go', 'java', 'csharp', 'haskell', 'ocaml'] },
           { label: 'At run time, when the value is used', langs: ['python', 'js', 'bash', 'prolog'] },
           { label: 'At declaration time, then partly at run time', langs: ['sql'], note: 'column types are static; coercion and NULL are dynamic surprises' },
           { label: 'Statically, but by the engine before it runs', langs: ['datalog'], note: 'Soufflé rejects ill-typed programs' }
@@ -86,7 +86,7 @@ window.CONCEPTS = [
       {
         axis: 'How much is inferred for you',
         positions: [
-          { label: 'Nothing — every type is written', langs: ['asm', 'c', 'go'], note: 'Go has := but not for struct fields or parameters' },
+          { label: 'Explicit declarations in C; Go also infers locals with :=; assembly has no source type system', langs: ['asm', 'c', 'go'], note: 'Go has := but not for struct fields or parameters' },
           { label: 'Locals only (var / auto)', langs: ['cpp', 'java', 'csharp'] },
           { label: 'Every local binding, not signatures', langs: ['rust'] },
           { label: 'Everything, including function signatures', langs: ['haskell', 'ocaml'] },
@@ -102,7 +102,7 @@ window.CONCEPTS = [
           { label: 'Reified at run time (the type is real)', langs: ['csharp'] },
           { label: 'Dictionary passing / boxed shapes', langs: ['go'] },
           { label: 'Parametric polymorphism by type inference', langs: ['haskell', 'ocaml'] },
-          { label: 'Not needed — nothing is typed', langs: ['python', 'js', 'bash', 'prolog', 'datalog', 'sql'] },
+          { label: 'Dynamic values or engine-specific schemas, rather than one shared generics model', langs: ['python', 'js', 'bash', 'prolog', 'datalog', 'sql'] },
           { label: 'Not available at all', langs: ['asm', 'c'] }
         ]
       },
@@ -111,8 +111,8 @@ window.CONCEPTS = [
         positions: [
           { label: 'Yes — Option/Maybe, and null cannot be assigned', langs: ['rust', 'haskell', 'ocaml'] },
           { label: 'Yes by annotation — nullable reference types', langs: ['csharp'], note: 'the compiler warns, the runtime does not enforce' },
-          { label: 'No — null/undefined/nil is a value of every type', langs: ['c', 'cpp', 'go', 'java', 'python', 'js'] },
-          { label: 'No such thing: it is simply NULL, a third truth value', langs: ['sql'] },
+          { label: 'Pointers/references or dynamic bindings can be absent; not every type admits null or nil', langs: ['c', 'cpp', 'go', 'java', 'python', 'js'] },
+          { label: 'NULL marks missing/unknown data; comparisons may yield UNKNOWN', langs: ['sql'] },
           { label: 'Not applicable — absent data is simply a fact that is not there', langs: ['prolog', 'datalog', 'asm', 'bash'] }
         ]
       },
@@ -141,11 +141,11 @@ window.CONCEPTS = [
         axis: 'Who frees the memory',
         positions: [
           { label: 'You do, at the instruction level', langs: ['asm', 'c'], note: 'every byte, every time, or the program dies or leaks' },
-          { label: 'You do, but the type system guarantees it (RAII)', langs: ['cpp', 'rust'], note: 'destructors; in Rust the borrow checker proves it safe' },
-          { label: 'A garbage collector does, and you cannot interfere', langs: ['go', 'java', 'csharp', 'js', 'haskell', 'ocaml'] },
+          { label: 'RAII automates cleanup; leaks and unsafe code still need care', langs: ['cpp', 'rust'], note: 'destructors; in Rust the borrow checker proves it safe' },
+          { label: 'A garbage collector reclaims unreachable managed objects', langs: ['go', 'java', 'csharp', 'js', 'haskell', 'ocaml'] },
           { label: 'Reference counting plus cycle collection', langs: ['python'] },
           { label: 'The engine does — storage is not your concern', langs: ['sql', 'datalog'] },
-          { label: 'The operating system does, when the process exits', langs: ['bash', 'prolog'], note: 'the shell reaps processes; the Prolog engine owns its stacks' }
+          { label: 'The runtime manages memory during execution; the OS reclaims process resources at exit', langs: ['bash', 'prolog'], note: 'the shell reaps processes; the Prolog engine owns its stacks' }
         ]
       },
       {
@@ -153,14 +153,14 @@ window.CONCEPTS = [
         positions: [
           { label: 'Silent corruption, or a segfault minutes later', langs: ['asm', 'c'] },
           { label: 'Undefined behaviour the optimizer is allowed to exploit', langs: ['c', 'cpp'] },
-          { label: 'Refused at compile time, with a diagram of the borrow', langs: ['rust'] },
+          { label: 'Many invalid borrows are rejected in safe Rust; unsafe code must uphold the contract', langs: ['rust'] },
           { label: 'A pause, or an out-of-memory kill', langs: ['go', 'java', 'csharp', 'js', 'haskell', 'ocaml', 'python'] }
         ]
       },
       {
         axis: 'Determinism of destruction',
         positions: [
-          { label: 'Exactly when the scope ends, guaranteed', langs: ['cpp', 'rust'], note: 'RAII: the foundation of lock guards, file handles, sockets' },
+          { label: 'Scope-based cleanup on ordinary exit; aborts, leaks and ownership transfers need separate consideration', langs: ['cpp', 'rust'], note: 'RAII: the foundation of lock guards, file handles, sockets' },
           { label: 'At some point after it becomes unreachable', langs: ['go', 'java', 'csharp', 'js', 'haskell', 'ocaml'], note: 'hence IDisposable, using, with, defer' },
           { label: 'Immediately at zero references (mostly)', langs: ['python'] },
           { label: 'Not applicable', langs: ['asm', 'c', 'bash', 'sql', 'datalog', 'prolog'] }
@@ -169,9 +169,9 @@ window.CONCEPTS = [
       {
         axis: 'Can you see the layout?',
         positions: [
-          { label: 'You choose every byte and alignment', langs: ['asm', 'c', 'rust'], note: 'repr(C), #[repr(packed)], manual structs' },
+          { label: 'Layout is constrained by the ABI, alignment and representation attributes', langs: ['asm', 'c', 'rust'], note: 'repr(C), #[repr(packed)], manual structs' },
           { label: 'Mostly, with rules you can learn', langs: ['cpp', 'csharp'], note: 'Span<T>, structs, stackalloc; vtable for virtual calls' },
-          { label: 'No, and you should not care', langs: ['java', 'go', 'python', 'js', 'haskell', 'ocaml'], note: 'Go and Java hide layout but still care about allocation counts' },
+          { label: 'Layout details depend on the runtime; allocation and cache behavior can still matter', langs: ['java', 'go', 'python', 'js', 'haskell', 'ocaml'], note: 'Go and Java hide layout but still care about allocation counts' },
           { label: 'There is no layout you own', langs: ['sql', 'datalog', 'bash', 'prolog'] }
         ]
       }
@@ -185,7 +185,7 @@ window.CONCEPTS = [
     same: [
       'All fifteen can branch on a condition (in Datalog, by writing two rules with disjoint guards).',
       'All fifteen can repeat: with a loop, with recursion, with a query, or by iterating to a fixpoint.',
-      'All fifteen can express the thirteen tasks in this app — including the ones where the "loop" is implicit in the engine.'
+      'The tasks illustrate repetition across dialects; scope notes mark implementations that this corpus does not supply.'
     ],
     differs: [
       {
@@ -196,7 +196,7 @@ window.CONCEPTS = [
           { label: 'Recursion and higher-order functions over lists', langs: ['haskell'], note: 'plus list comprehensions and ranges' },
           { label: 'Recursive rules, evaluated as a query', langs: ['sql'], note: 'WITH RECURSIVE is the only looping construct' },
           { label: 'Backtracking over a search space', langs: ['prolog'], note: 'forall/2 and findall/3 drive enumeration; recursion does the rest' },
-          { label: 'Recursive rules evaluated to a fixpoint', langs: ['datalog'], note: 'and termination is guaranteed by the language' }
+          { label: 'Recursive rules evaluated to a fixpoint', langs: ['datalog'], note: 'classical finite-domain Datalog terminates; Soufflé arithmetic can go beyond that fragment' }
         ]
       },
       {
@@ -205,7 +205,7 @@ window.CONCEPTS = [
           { label: 'You set the flag; nothing checks it for you', langs: ['asm'] },
           { label: 'A condition you write, or break/return/continue', langs: ['c', 'cpp', 'rust', 'go', 'java', 'csharp', 'python', 'js', 'bash'] },
           { label: 'The list runs out', langs: ['haskell', 'ocaml', 'rust', 'python', 'js'], note: 'iteration over a finite structure' },
-          { label: 'The result stops changing', langs: ['sql', 'datalog', 'prolog'], note: 'fixpoint: nothing new can be derived' },
+          { label: 'The result stops changing', langs: ['sql', 'datalog'], note: 'fixpoint: nothing new can be derived' },
           { label: 'A cut (!) commits to a choice', langs: ['prolog'] }
         ]
       },
@@ -214,7 +214,7 @@ window.CONCEPTS = [
         positions: [
           { label: 'No — it is a statement', langs: ['asm', 'c', 'go', 'java', 'csharp', 'bash'] },
           { label: 'Yes — an iterator or a sequence you can compose', langs: ['rust', 'python', 'js', 'cpp'], note: 'lazy chains, generators, ranges' },
-          { label: 'Yes — a lazy list, which may be infinite', langs: ['haskell', 'ocaml'] },
+          { label: 'Haskell lists are lazy; OCaml needs explicit lazy values or sequences', langs: ['haskell', 'ocaml'] },
           { label: 'Not applicable — the engine owns the iteration', langs: ['sql', 'datalog', 'prolog'] }
         ]
       },
@@ -225,7 +225,7 @@ window.CONCEPTS = [
           { label: 'You get an infinite lazy structure, which is sometimes the point', langs: ['haskell'] },
           { label: 'It runs out of memory or recursion depth', langs: ['ocaml', 'python'] },
           { label: 'The engine may not terminate — a real risk in logic programming', langs: ['prolog'] },
-          { label: 'Cannot happen — Datalog rules over finite data always terminate', langs: ['datalog'] },
+          { label: 'Classical finite-domain Datalog terminates; unrestricted arithmetic extensions may not', langs: ['datalog'] },
           { label: 'The query runs until the plan says it is done', langs: ['sql'] }
         ]
       }
@@ -261,7 +261,7 @@ window.CONCEPTS = [
           { label: 'A function pointer you must call correctly', langs: ['c', 'asm'] },
           { label: 'A goal you can pass and call: maplist, include, aggregate', langs: ['prolog'] },
           { label: 'Absent — the verbs are syntax, not values', langs: ['sql'] },
-          { label: 'Absent — there are no functions', langs: ['datalog', 'bash'], note: 'bash approximates it by passing a function name as a string' }
+          { label: 'No first-class function values in the selected core; Bash can dispatch by a function name', langs: ['datalog', 'bash'], note: 'bash approximates it by passing a function name as a string' }
         ]
       },
       {
@@ -270,7 +270,7 @@ window.CONCEPTS = [
           { label: 'Classes and inheritance or interfaces', langs: ['java', 'csharp', 'cpp', 'python'] },
           { label: 'Traits — shared behaviour without a hierarchy', langs: ['rust'] },
           { label: 'Type classes and parametric polymorphism', langs: ['haskell'] },
-          { label: 'Modules and functors (the most powerful of the group)', langs: ['ocaml'] },
+          { label: 'Modules and functors for reusable module-level abstractions', langs: ['ocaml'] },
           { label: 'Implicit interfaces: if it has the method, it fits', langs: ['go'] },
           { label: 'Prototypes: objects inherit from objects', langs: ['js'] },
           { label: 'C macros and link-time conventions', langs: ['c', 'asm'] },
@@ -316,15 +316,15 @@ window.CONCEPTS = [
         axis: 'Alternatives (sum types)',
         positions: [
           { label: 'A language feature, closed and exhaustive', langs: ['haskell', 'ocaml', 'rust'] },
-          { label: 'Closed by sealed/abstract hierarchies plus patterns', langs: ['java', 'csharp'] },
+          { label: 'Java sealed hierarchies; C# records and patterns do not automatically close inheritance', langs: ['java', 'csharp'] },
           { label: 'std::variant, with a visitor you must make total', langs: ['cpp'] },
           { label: 'A tag field and a switch — nothing checked', langs: ['c', 'js'] },
           { label: 'Dataclasses plus match, checked at run time only', langs: ['python'] },
           { label: 'An interface plus a type switch — open, and silently extensible', langs: ['go'] },
           { label: 'A predicate per case; the caller decides how to report other input', langs: ['prolog'] },
           { label: 'A kind column plus a CHECK constraint', langs: ['sql'] },
-          { label: 'Not expressible: no function symbols, no compound values', langs: ['datalog'] },
-          { label: 'Not expressible: no compound values at all', langs: ['bash'] }
+          { label: 'Classical Datalog uses relations; Soufflé also supports records and algebraic data types', langs: ['datalog'] },
+          { label: 'Representable with tags and arrays, without an algebraic-type checker', langs: ['bash'] }
         ]
       },
       {
@@ -332,7 +332,7 @@ window.CONCEPTS = [
         positions: [
           { label: 'Nothing: you build it or import it', langs: ['asm'] },
           { label: 'Arrays are syntax; everything else is a library', langs: ['c', 'cpp'] },
-          { label: 'Lists, maps, sets built in and idiomatic', langs: ['python', 'js', 'java', 'csharp', 'go', 'bash'], note: 'bash maps need 4.0+' },
+          { label: 'Collection support varies: built-in syntax and standard-library types', langs: ['python', 'js', 'java', 'csharp', 'go', 'bash'], note: 'bash maps need 4.0+' },
           { label: 'Linked lists come with the language; maps are a library', langs: ['haskell', 'ocaml'] },
           { label: 'Lists and terms; assert/retract for a mutable store', langs: ['prolog'] },
           { label: 'Relations are the only data structure', langs: ['datalog', 'sql'] }
@@ -341,8 +341,8 @@ window.CONCEPTS = [
       {
         axis: 'Mutation: may a value change?',
         positions: [
-          { label: 'Always, and that is the default', langs: ['asm', 'c', 'cpp', 'java', 'csharp', 'go', 'python', 'js', 'bash', 'ocaml'] },
-          { label: 'Only where explicitly marked (let mut, ref)', langs: ['rust'], note: 'and only one mutable borrow at a time' },
+          { label: 'Always, and that is the default', langs: ['asm', 'c', 'cpp', 'java', 'csharp', 'go', 'python', 'js', 'bash'] },
+          { label: 'Only where explicitly marked (let mut, ref)', langs: ['rust', 'ocaml'], note: 'Rust uses mut and borrowing; OCaml uses refs or mutable fields' },
           { label: 'Never — you build a new value instead', langs: ['haskell'] },
           { label: 'Data is immutable; you declare new facts instead', langs: ['datalog', 'prolog'], note: 'assert/retract exist but are not the idiom' },
           { label: 'UPDATE is a statement, not a property of a value', langs: ['sql'] }
@@ -358,7 +358,7 @@ window.CONCEPTS = [
     same: [
       'All fifteen can distinguish "the answer is 5" from "there is no answer", and every one of them can be made to print a message about it.',
       'All fifteen can be made to fail catastrophically — some by design, some by accident.',
-      'In all fifteen, the mechanism was chosen for the caller\'s convenience, not for the runtime\'s.'
+      'Failure mechanisms differ by language and implementation; a type, exception, status or empty result communicates different information.'
     ],
     differs: [
       {
@@ -369,7 +369,7 @@ window.CONCEPTS = [
           { label: 'In the type: Result, Option, Either', langs: ['rust', 'haskell', 'ocaml'] },
           { label: 'In the control flow: throw and unwind', langs: ['cpp', 'java', 'csharp', 'python', 'js'] },
           { label: 'In an exit status', langs: ['bash'] },
-          { label: 'In the data: NULL, the third truth value', langs: ['sql'] },
+          { label: 'NULL and empty results, plus database errors and constraints', langs: ['sql'] },
           { label: 'Nowhere: a goal that cannot be proved simply fails', langs: ['prolog'] },
           { label: 'Nowhere: a rule that derives nothing derives nothing', langs: ['datalog'] }
         ]
@@ -379,9 +379,9 @@ window.CONCEPTS = [
         positions: [
           { label: 'Yes, and nothing will warn you', langs: ['asm', 'c', 'bash', 'js', 'python', 'cpp'], note: 'except a linter or a must-use annotation' },
           { label: 'Not silently: Rust warns on an unused Result', langs: ['rust'] },
-          { label: 'Not at all: the type will not typecheck otherwise', langs: ['haskell', 'ocaml'], note: 'if you use Either/option rather than exceptions' },
+          { label: 'Options and sums expose alternatives; incomplete matches can still compile unless diagnostics are enforced', langs: ['haskell', 'ocaml'], note: 'if you use Either/option rather than exceptions' },
           { label: 'Not if the exception is checked (Java)', langs: ['java'], note: 'the compiler forces declaring or catching' },
-          { label: 'There is nothing to handle', langs: ['sql', 'datalog', 'prolog'] }
+          { label: 'Empty results may be normal; engine errors, exceptions and constraints still need handling', langs: ['sql', 'datalog', 'prolog'] }
         ]
       },
       {
@@ -391,7 +391,7 @@ window.CONCEPTS = [
           { label: 'A distinguished value of the type: undefined, null, nil', langs: ['js', 'go', 'java', 'python'] },
           { label: 'A distinct constructor: None, Nothing, Err, Left', langs: ['rust', 'haskell', 'ocaml'] },
           { label: 'No rows — which is not an error', langs: ['sql'] },
-          { label: 'The goal fails and the engine backtracks', langs: ['prolog', 'datalog'] },
+          { label: 'Prolog goals can fail and backtrack; Datalog derives no matching tuple', langs: ['prolog', 'datalog'] },
           { label: 'An empty string and a non-zero status', langs: ['bash'] }
         ]
       }
@@ -403,7 +403,7 @@ window.CONCEPTS = [
     title: 'Side effects and I/O',
     tagline: 'Who is allowed to touch the outside world, and does the language make that visible in the code?',
     same: [
-      'All fifteen can read a file, print to the screen, and talk to the network — that is what makes them useful rather than pure mathematics.',
+      'Each implementation provides some input/output boundary. General-purpose runtimes expose files and networking; SQL and Datalog commonly rely on their host engine or directives.',
       'All fifteen separate "compute a value" from "produce an effect" somewhere: at the type level, the statement level, or only in the programmer\'s head.',
       'All fifteen make testing harder when effects are tangled with logic. Hiding effects behind a seam is a universally good idea.'
     ],
@@ -412,11 +412,11 @@ window.CONCEPTS = [
         axis: 'Are effects visible in the type or the syntax?',
         positions: [
           { label: 'Yes, statically: IO a cannot be called from pure code', langs: ['haskell'] },
-          { label: 'By convention and by monad-ish types (Lwt, Eio)', langs: ['ocaml'] },
+          { label: 'By library conventions, monadic APIs or effect handlers, depending on the library', langs: ['ocaml'] },
           { label: 'In the syntax: any statement may do anything', langs: ['asm', 'c', 'cpp', 'go', 'java', 'csharp', 'python', 'js', 'bash'] },
           { label: 'In the data model: a query is read-only by default', langs: ['sql'] },
           { label: 'Not applicable: there is no I/O in the language at all', langs: ['datalog'], note: 'input and output are engine directives' },
-          { label: 'Effects are the only thing a predicate does', langs: ['prolog'] }
+          { label: 'Predicates can express pure relations; I/O predicates add effects', langs: ['prolog'] }
         ]
       },
       {
@@ -432,7 +432,7 @@ window.CONCEPTS = [
       {
         axis: 'Effect handling that other languages copy from here',
         positions: [
-          { label: 'async/await for I/O concurrency', langs: ['js', 'csharp', 'python', 'rust'], note: 'all of it descends from Haskell\'s and C#\'s designs' },
+          { label: 'async/await for I/O concurrency', langs: ['js', 'csharp', 'python', 'rust'], note: 'related syntax, with different runtime and cancellation behavior' },
           { label: 'RAII: effects tied to scope exit', langs: ['cpp', 'rust'], note: 'borrowed by C# (using/dispose) and Python (with)' },
           { label: 'STM: composable atomic effects', langs: ['haskell'] },
           { label: 'Transactions: effects that can be undone', langs: ['sql'] }
@@ -467,7 +467,7 @@ window.CONCEPTS = [
       {
         axis: 'Evaluation order',
         positions: [
-          { label: 'Strict, left to right, as written', langs: ['asm', 'c', 'cpp', 'java', 'csharp', 'go', 'python', 'js', 'bash', 'rust', 'ocaml'] },
+          { label: 'Usually eager; operand and argument evaluation order varies (not uniformly left to right)', langs: ['asm', 'c', 'cpp', 'java', 'csharp', 'go', 'python', 'js', 'bash', 'rust', 'ocaml'] },
           { label: 'Lazy: nothing is evaluated until its value is needed', langs: ['haskell'], note: 'which is why infinite lists are legal' },
           { label: 'Set-at-a-time; order is undefined without ORDER BY', langs: ['sql'] },
           { label: 'Depth-first search with backtracking', langs: ['prolog'] },
@@ -489,7 +489,7 @@ window.CONCEPTS = [
           { label: 'Instant start, slow per operation', langs: ['bash', 'python'] },
           { label: 'Start in milliseconds, run at native speed', langs: ['asm', 'c', 'cpp', 'rust', 'go', 'ocaml'] },
           { label: 'Warm-up then fast — the JIT needs profiles', langs: ['java', 'csharp', 'js'] },
-          { label: 'Constant cost proportional to the data', langs: ['sql', 'datalog', 'prolog'] }
+          { label: 'Cost depends on the query, indexes, search space and execution plan', langs: ['sql', 'datalog', 'prolog'] }
         ]
       }
     ]
@@ -498,10 +498,10 @@ window.CONCEPTS = [
   {
     id: 'concurrency',
     title: 'Concurrency',
-    tagline: 'Five real models, one single-threaded outlier, and two languages where the question does not arise.',
+    tagline: 'Compare runtime scheduling, shared state and engine-managed parallelism.',
     same: [
-      'All ten languages with concurrency can do work while other work is in progress, and all of them make it harder to reason about the program.',
-      'In every one of them, the hard part is shared mutable state — the languages that removed sharing removed the hard part with it.',
+      'Concurrency allows work to be in progress together; parallelism executes work simultaneously. The same output does not establish either scheduling behavior.',
+      'Shared mutable state needs coordination. Message passing reduces direct sharing, but deadlocks, ordering bugs and external-resource races can remain.',
       'Every one of them has a way to wait for completion: join, WaitGroup, await, wait, or a transaction boundary.'
     ],
     differs: [
@@ -519,7 +519,7 @@ window.CONCEPTS = [
           { label: 'Green threads plus software transactional memory', langs: ['haskell'] },
           { label: 'Domains: real parallelism with shared memory', langs: ['ocaml'], note: 'OCaml 5 and later' },
           { label: 'Not expressed in the language: the engine owns the threads', langs: ['sql', 'datalog'] },
-          { label: 'Not part of the paradigm at all', langs: ['prolog'] }
+          { label: 'Runtime extensions: SWI-Prolog provides threads, mutexes and message queues', langs: ['prolog'] }
         ]
       },
       {
@@ -543,7 +543,7 @@ window.CONCEPTS = [
           { label: 'A starved event loop: one blocking call freezes everything', langs: ['js'] },
           { label: 'The GIL: threads that do not actually run in parallel', langs: ['python'] },
           { label: 'A retried transaction, which is the point', langs: ['haskell', 'sql'] },
-          { label: 'Nothing: Datalog answers are order-independent by construction', langs: ['datalog'] }
+          { label: 'Declarative results can be order-independent, but resource exhaustion or non-termination remains possible', langs: ['datalog'] }
         ]
       }
     ]
@@ -556,13 +556,13 @@ window.CONCEPTS = [
     same: [
       'All fifteen have a way to run a program, and all fifteen have some way to say "this should produce that" and check it.',
       'All fifteen have an editor story: syntax highlighting at minimum, language servers for most.',
-      'In all fifteen, the size and health of the ecosystem is a stronger predictor of what gets built than the language design is.'
+      'Choose tools and libraries for a concrete task. Ecosystem size alone does not establish suitability, safety or maintainability.'
     ],
     differs: [
       {
         axis: 'Build and package management',
         positions: [
-          { label: 'One integrated tool, nothing to configure', langs: ['rust', 'go'], note: 'cargo and go modules — widely considered the best in the list' },
+          { label: 'Integrated build and package tools; configuration and dependency choices still matter', langs: ['rust', 'go'], note: 'cargo and Go modules' },
           { label: 'The platform toolchain: dotnet, Maven/Gradle, opam, cabal', langs: ['csharp', 'java', 'ocaml', 'haskell'] },
           { label: 'pip plus venv/uv, or npm/pnpm', langs: ['python', 'js'] },
           { label: 'Make, CMake, Conan, vcpkg — no single answer', langs: ['c', 'cpp'] },
@@ -575,11 +575,11 @@ window.CONCEPTS = [
       {
         axis: 'Testing',
         positions: [
-          { label: 'Built in: cargo test, go test, doctests', langs: ['rust', 'go', 'haskell', 'python'], note: 'Haskell\'s doctests keep examples honest' },
+          { label: 'Built-in testing or ecosystem tools: cargo test, go test, Python doctest, Haskell doctest', langs: ['rust', 'go', 'haskell', 'python'], note: 'Haskell\'s doctests keep examples honest' },
           { label: 'A dominant framework: JUnit, xUnit, pytest, Jest', langs: ['java', 'csharp', 'python', 'js'] },
           { label: 'Conventions and tools of your own choosing', langs: ['c', 'cpp', 'bash', 'ocaml'] },
           { label: 'Assertions in-language: you describe what should hold', langs: ['prolog', 'datalog', 'sql'] },
-          { label: 'Manual: you check the output by eye', langs: ['asm'] }
+          { label: 'Output comparison and machine-level harnesses, including this corpus verifier', langs: ['asm'] }
         ]
       },
       {
@@ -596,7 +596,7 @@ window.CONCEPTS = [
       {
         axis: 'What the language does not give you',
         positions: [
-          { label: 'Nothing: the ecosystem is enormous', langs: ['python', 'js', 'java', 'csharp'] },
+          { label: 'Large ecosystems still leave gaps; assess the particular dependency and task', langs: ['python', 'js', 'java', 'csharp'] },
           { label: 'Very little missing, but versions matter', langs: ['rust', 'go', 'cpp'] },
           { label: 'You will write what you cannot find — and there is a lot of that', langs: ['asm', 'c', 'ocaml', 'haskell'] },
           { label: 'You are inside one system, and it does everything — differently', langs: ['sql', 'prolog', 'datalog', 'bash'] }
@@ -644,37 +644,37 @@ window.MATRIX = [
     capability: 'Static type checking',
     why: 'Is a whole class of mistakes found before the program runs?',
     cells: { asm: 'n', c: 'y', cpp: 'y', rust: 'y', go: 'y', java: 'y', csharp: 'y', python: 'p', js: 'p', bash: 'n', sql: 'p', haskell: 'y', ocaml: 'y', prolog: 'n', datalog: 'p' },
-    notes: { python: 'type hints are checked by external tools, not the interpreter', js: 'only via TypeScript', sql: 'column types exist; coercion and NULL are dynamic', datalog: 'per implementation; Soufflé checks statically' }
+    notes: { python: 'type hints are checked by external tools, not the interpreter', js: 'TypeScript or static analysis of annotated JavaScript', sql: 'column types exist; coercion and NULL are dynamic', datalog: 'per implementation; Soufflé checks statically' }
   },
   {
     capability: 'Type inference',
     why: 'Do you have to write the types down, or does the language work them out?',
     cells: { asm: 'n', c: 'n', cpp: 'p', rust: 'p', go: 'p', java: 'p', csharp: 'p', python: 'x', js: 'x', bash: 'x', sql: 'n', haskell: 'y', ocaml: 'y', prolog: 'x', datalog: 'x' },
-    notes: { cpp: 'auto and templates; not for signatures', java: 'var and lambdas only', csharp: 'var, target-typed new', rust: 'local inference, explicit signatures', go: ':= only', python: 'untyped; hints are optional', js: 'untyped', prolog: 'untyped: everything is a term' }
+    notes: { cpp: 'auto and templates; not for signatures', java: 'var and lambdas only', csharp: 'var, target-typed new', rust: 'local inference, explicit signatures', go: ':= only', python: 'dynamically typed; hints are optional', js: 'dynamically typed', prolog: 'runtime terms have types; there is no mandatory static type checker' }
   },
   {
     capability: 'First-class functions',
     why: 'Can you store a function in a variable and pass it to another function?',
     cells: { asm: 'p', c: 'p', cpp: 'y', rust: 'y', go: 'y', java: 'y', csharp: 'y', python: 'y', js: 'y', bash: 'p', sql: 'n', haskell: 'y', ocaml: 'y', prolog: 'y', datalog: 'n' },
-    notes: { asm: 'an address you blr to', c: 'function pointers, no captures', bash: 'a function name as a string', prolog: 'goals are values: maplist, call/1', sql: 'the verbs are syntax, not values', datalog: 'no functions of any kind' }
+    notes: { asm: 'an address you blr to', c: 'function pointers, no captures', bash: 'a function name as a string', prolog: 'goals are values: maplist, call/1', sql: 'the verbs are syntax, not values', datalog: 'no first-class functions in the relational core; Soufflé functors extend expressions' }
   },
   {
     capability: 'Closures',
     why: 'Does a function remember the variables where it was defined?',
     cells: { asm: 'n', c: 'n', cpp: 'y', rust: 'y', go: 'y', java: 'y', csharp: 'y', python: 'y', js: 'y', bash: 'n', sql: 'n', haskell: 'y', ocaml: 'y', prolog: 'p', datalog: 'n' },
-    notes: { cpp: 'lambda captures by value or reference', java: 'captured locals must be effectively final', bash: 'state has to travel as text or files', prolog: 'closure/3 exists but passing goals covers most uses' }
+    notes: { cpp: 'lambda captures by value or reference', java: 'captured locals must be effectively final', bash: 'state has to travel as text or files', prolog: 'partially applied goals can be passed to call/N and maplist' }
   },
   {
     capability: 'Sum types (tagged alternatives)',
     why: 'Can you say "exactly one of these, and the compiler checks you handled it"?',
-    cells: { asm: 'p', c: 'p', cpp: 'p', rust: 'y', go: 'n', java: 'y', csharp: 'y', python: 'p', js: 'n', bash: 'n', sql: 'p', haskell: 'y', ocaml: 'y', prolog: 'p', datalog: 'n' },
+    cells: { asm: 'p', c: 'p', cpp: 'p', rust: 'y', go: 'n', java: 'y', csharp: 'p', python: 'p', js: 'n', bash: 'n', sql: 'p', haskell: 'y', ocaml: 'y', prolog: 'p', datalog: 'p' },
     notes: { asm: 'a tag word you branch on', c: 'a tagged union you maintain by hand', cpp: 'std::variant; totality is on you', java: 'sealed interfaces + records (21+)', csharp: 'abstract records + switch expressions', python: 'dataclasses + match, checked at run time', sql: 'a kind column and a CHECK constraint', prolog: 'compound terms, matched by clause head' }
   },
   {
     capability: 'Exhaustive pattern matching',
     why: 'Does forgetting a case fail the build?',
-    cells: { asm: 'n', c: 'n', cpp: 'n', rust: 'y', go: 'n', java: 'y', csharp: 'p', python: 'n', js: 'n', bash: 'n', sql: 'n', haskell: 'y', ocaml: 'p', prolog: 'p', datalog: 'n' },
-    notes: { java: 'only with sealed hierarchies', csharp: 'no warning when the `_` arm swallows a new case', ocaml: 'a warning, not an error — and it names the missing cases', prolog: 'a catch-all clause hides the omission', rust: 'this is the headline feature' }
+    cells: { asm: 'n', c: 'n', cpp: 'n', rust: 'y', go: 'n', java: 'y', csharp: 'p', python: 'n', js: 'n', bash: 'n', sql: 'n', haskell: 'p', ocaml: 'p', prolog: 'p', datalog: 'n' },
+    notes: { haskell: 'GHC requires -Wincomplete-patterns and -Werror=incomplete-patterns for a build failure', java: 'only with sealed hierarchies', csharp: 'no warning when the `_` arm swallows a new case', ocaml: 'a warning, not an error — and it names the missing cases', prolog: 'a catch-all clause hides the omission', rust: 'this is the headline feature' }
   },
   {
     capability: 'Generics / parametric polymorphism',
@@ -686,37 +686,37 @@ window.MATRIX = [
     capability: 'Garbage collection',
     why: 'Does something else free the memory?',
     cells: { asm: 'n', c: 'n', cpp: 'n', rust: 'n', go: 'y', java: 'y', csharp: 'y', python: 'y', js: 'y', bash: 'x', sql: 'x', haskell: 'y', ocaml: 'y', prolog: 'x', datalog: 'x' },
-    notes: { rust: 'ownership instead: no GC, and no leaks by mistake', python: 'reference counting plus a cycle collector', bash: 'each command is its own process', sql: 'the engine owns the pages', prolog: 'the engine owns its stacks and trail' }
+    notes: { rust: 'ownership instead; reference cycles and deliberately forgotten values can still leak', python: 'reference counting plus a cycle collector', bash: 'each command is its own process', sql: 'the engine owns the pages', prolog: 'the engine owns its stacks and trail' }
   },
   {
     capability: 'Deterministic destruction',
     why: 'Do you know exactly when a resource is released?',
     cells: { asm: 'p', c: 'p', cpp: 'y', rust: 'y', go: 'p', java: 'p', csharp: 'p', python: 'p', js: 'p', bash: 'x', sql: 'x', haskell: 'p', ocaml: 'p', prolog: 'x', datalog: 'x' },
-    notes: { cpp: 'destructors: RAII is the foundation of the standard library', rust: 'Drop, and the borrow checker proving there is no aliasing', go: 'defer for explicit cleanup', java: 'try-with-resources', csharp: 'using and IDisposable', python: 'with and __exit__', js: 'try/finally only', haskell: 'bracket and withFile' }
+    notes: { cpp: 'destructors: RAII is the foundation of the standard library', rust: 'Drop for owned resources; shared immutable references are allowed', go: 'defer for explicit cleanup', java: 'try-with-resources', csharp: 'using and IDisposable', python: 'with and __exit__', js: 'try/finally; newer runtimes may also support explicit resource management', haskell: 'bracket and withFile' }
   },
   {
     capability: 'Exceptions (throw/catch)',
     why: 'Can a failure travel up the stack without being declared?',
     cells: { asm: 'n', c: 'n', cpp: 'y', rust: 'n', go: 'p', java: 'y', csharp: 'y', python: 'y', js: 'y', bash: 'p', sql: 'p', haskell: 'p', ocaml: 'y', prolog: 'p', datalog: 'n' },
-    notes: { rust: 'Result instead; panic for bugs', go: 'panic/recover, meant for the truly exceptional', bash: 'exit statuses and traps', sql: 'errors yes, but division by zero is just NULL', haskell: 'exceptions exist in IO; Either is the idiomatic path', prolog: 'failure is the primary mechanism' }
+    notes: { rust: 'Result instead; panic for bugs', go: 'panic/recover, meant for the truly exceptional', bash: 'exit statuses and traps', sql: 'SQLite returns NULL for division by zero; other SQL engines may raise an error', haskell: 'exceptions exist in IO; Either is the idiomatic path', prolog: 'failure is the primary mechanism' }
   },
   {
     capability: 'Concurrency',
     why: 'Does the language itself have something to say about doing two things at once?',
-    cells: { asm: 'p', c: 'y', cpp: 'y', rust: 'y', go: 'y', java: 'y', csharp: 'y', python: 'p', js: 'p', bash: 'y', sql: 'x', haskell: 'y', ocaml: 'y', prolog: 'n', datalog: 'x' },
-    notes: { asm: 'atomics and threads via the OS, with no safety net', c: 'pthreads', rust: 'Send/Sync make data races a compile error', go: 'goroutines and channels', python: 'the GIL limits threads; asyncio for I/O', js: 'one event loop; workers for real parallelism', bash: 'background jobs and wait', haskell: 'STM: atomic blocks that compose', sql: 'isolation levels; the engine owns the threads' }
+    cells: { asm: 'p', c: 'y', cpp: 'y', rust: 'y', go: 'y', java: 'y', csharp: 'y', python: 'p', js: 'p', bash: 'y', sql: 'x', haskell: 'y', ocaml: 'y', prolog: 'p', datalog: 'x' },
+    notes: { prolog: 'SWI-Prolog threads and message queues', asm: 'atomics and threads via the OS, with no safety net', c: 'pthreads', rust: 'Send/Sync make data races a compile error', go: 'goroutines and channels', python: 'the GIL limits threads; asyncio for I/O', js: 'one event loop; workers for real parallelism', bash: 'background jobs and wait', haskell: 'STM: atomic blocks that compose', sql: 'isolation levels; the engine owns the threads' }
   },
   {
     capability: 'Lazy evaluation',
     why: 'Can you describe an infinite or very large structure and only compute what is used?',
-    cells: { asm: 'n', c: 'n', cpp: 'n', rust: 'p', go: 'n', java: 'p', csharp: 'p', python: 'p', js: 'p', bash: 'x', sql: 'p', haskell: 'y', ocaml: 'n', prolog: 'p', datalog: 'x' },
-    notes: { rust: 'iterator adapters are lazy', java: 'streams are lazy', csharp: 'LINQ is lazy until enumerated', python: 'generators', js: 'generators', sql: 'a query is a plan until it is executed', haskell: 'lazy by default, which is what makes [1..] legal' }
+    cells: { asm: 'n', c: 'n', cpp: 'p', rust: 'p', go: 'n', java: 'p', csharp: 'p', python: 'p', js: 'p', bash: 'x', sql: 'p', haskell: 'y', ocaml: 'p', prolog: 'p', datalog: 'x' },
+    notes: { cpp: 'range views defer computation', ocaml: 'Lazy and Seq provide explicit deferred computation', rust: 'iterator adapters are lazy', java: 'streams are lazy', csharp: 'LINQ is lazy until enumerated', python: 'generators', js: 'generators', sql: 'a query is a plan until it is executed', haskell: 'lazy by default, which is what makes [1..] legal' }
   },
   {
     capability: 'Guaranteed tail calls',
     why: 'Can recursion be the way you write loops, without growing the stack?',
-    cells: { asm: 'x', c: 'n', cpp: 'n', rust: 'n', go: 'n', java: 'n', csharp: 'n', python: 'n', js: 'n', bash: 'n', sql: 'x', haskell: 'y', ocaml: 'y', prolog: 'p', datalog: 'x' },
-    notes: { haskell: 'GHC optimises it; the idiom depends on it', ocaml: 'guaranteed, and the style depends on it', prolog: 'last-call optimisation is standard', java: 'deliberately omitted: it would break stack traces', python: 'not available; the recursion limit is a hard 1000 by default' }
+    cells: { asm: 'x', c: 'n', cpp: 'n', rust: 'n', go: 'n', java: 'n', csharp: 'n', python: 'n', js: 'p', bash: 'n', sql: 'x', haskell: 'p', ocaml: 'y', prolog: 'p', datalog: 'x' },
+    notes: { js: 'proper tail calls are specified for strict-mode tail positions, but engine support varies', haskell: 'GHC optimises it; the idiom depends on it', ocaml: 'tail calls are optimized by OCaml; only calls in tail position qualify', prolog: 'last-call optimisation is standard', java: 'ordinary Java calls have no portable tail-call optimization guarantee', python: 'CPython has a configurable recursion limit; ordinary calls are not tail-call optimized' }
   },
   {
     capability: 'Macros / metaprogramming',
@@ -728,6 +728,6 @@ window.MATRIX = [
     capability: 'No null in the type system',
     why: 'Is the absence of a value impossible to ignore?',
     cells: { asm: 'x', c: 'n', cpp: 'n', rust: 'y', go: 'n', java: 'n', csharp: 'p', python: 'n', js: 'n', bash: 'x', sql: 'n', haskell: 'y', ocaml: 'y', prolog: 'x', datalog: 'x' },
-    notes: { rust: 'Option replaces null entirely', csharp: 'nullable reference types warn, they do not enforce', sql: 'NULL is a third truth value and infects every expression', haskell: 'Maybe; Nothing is a value you must handle', ocaml: 'option; and some/None is exhaustive by type' }
+    notes: { rust: 'Option models absence for safe values; raw pointers can be null', csharp: 'nullable reference types warn, they do not enforce', sql: 'NULL denotes missing data; comparisons often produce UNKNOWN, while IS NULL and COALESCE handle it explicitly', haskell: 'Maybe; Nothing is a value you must handle', ocaml: 'option; and some/None is exhaustive by type' }
   }
 ];

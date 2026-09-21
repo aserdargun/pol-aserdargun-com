@@ -1,6 +1,8 @@
-# Every Programming Language Still Available in the World
+# Programming languages: a curated catalog
 
-A working catalog of programming languages you can still install, compile, run, and get help with today — as of September 2026.
+A discovery catalog for POL and the aserdargun.com learning system. It includes languages, dialects, DSLs and clearly identified adjacent tools; inclusion is not a verified installation or maintenance claim.
+
+**Reviewed 21 September 2026.** The September TIOBE tables were checked against the [publisher’s index](https://www.tiobe.com/tiobe-index/). Rankings are dated popularity indicators, not language quality or market-share measurements. Historical and experimental entries below require individual platform, license and release checks. POL itself covers 15 languages, not this entire catalog.
 
 ---
 
@@ -13,17 +15,17 @@ There is no single, finite list of "all programming languages still available," 
 | Languages ever created (documented) | **~8,945** | Historical Encyclopedia of Programming Languages (HOPL) |
 | Notable languages indexed today | **~700** | Wikipedia, *List of programming languages* (excludes markup + esoteric) |
 | Languages with measurable popularity | **100** | TIOBE ranks a top 50 and lists a further 50; monitors more |
-| Languages with real, ongoing industry use | **~50–100** | Consensus across TIOBE, IEEE Spectrum, GitHub, Stack Overflow |
-| Languages people would call "mainstream" | **~20** | Top of every ranking |
+| Languages with real, ongoing industry use | **~50–100** | Editorial estimate, not a measured cross-source total |
+| Languages people would call "mainstream" | **~20** | Editorial shorthand; rankings differ |
 
 So: **thousands exist, a few hundred are genuinely usable, and a few dozen matter commercially.**
 
-In this document, **"still available"** means a language that satisfies *all* of these:
+For a concrete project, verify **availability** against both of these criteria:
 
 1. A working implementation can be downloaded and run today (official or open-source), and
 2. At least one of the following is true: a vendor supports it, a standards body maintains it, an active community ships releases, or a package/module ecosystem depends on it.
 
-That deliberately excludes languages with no surviving toolchain (e.g. Algol 60 reference implementations that no longer build on modern systems, most 1970s vendor-specific dialects, and abandoned research languages). Where a language survives only inside legacy systems, it is marked **○ legacy** rather than dropped.
+The historical section is a discovery list, not evidence that each entry satisfies these criteria. A legacy label alone establishes neither current support nor easy installation.
 
 **Legend**
 
@@ -49,7 +51,7 @@ That deliberately excludes languages with no surviving toolchain (e.g. Algol 60 
 | 7 | **Visual Basic** | 2.55% | Line-of-business Windows apps, Office/VBA automation. |
 | 8 | **SQL** | 2.16% | The universal data language. Underpins every relational system. |
 | 9 | **R** | 1.69% | Statistics, biostatistics, epidemiology, academic research. |
-| 10 | **Rust** | 1.34% | Memory-safe systems code. Entered the TIOBE top 10 for the first time in July 2026. |
+| 10 | **Rust** | 1.34% | Systems programming with ownership and borrowing; safe-code guarantees depend on unsafe code upholding its contracts. |
 | 11 | **Fortran** | 1.24% | Numerical HPC, weather and climate models, physics simulation. |
 | 12 | **Go** | 1.10% | Cloud infrastructure, microservices, CLI tooling, Kubernetes ecosystem. |
 | 13 | **Delphi / Object Pascal** | 1.08% | Windows desktop and business apps, still actively sold and updated. |
@@ -65,15 +67,15 @@ That deliberately excludes languages with no surviving toolchain (e.g. Algol 60 
 
 Rankings disagree wildly because each measures something different, and you should not treat any one of them as truth:
 
-- **TIOBE** counts search-engine hits, courses, and vendor presence. It *under*-rates TypeScript (position 39) while **GitHub Octoverse 2025 put TypeScript at #1 and Python at #2** by repository activity.
-- **Stack Overflow 2025** (31,771 respondents) shows Python's adoption accelerating — a 7 percentage point jump in a year — and names **Rust the most admired language (72%)**, followed by Gleam (70%), Elixir (66%), and Zig (64%).
+- **TIOBE** counts search-engine hits, courses, and vendor presence. It ranks TypeScript at position 39, while **GitHub Octoverse 2025 put TypeScript at #1 and Python at #2** by monthly active contributors in August 2025.
+- **Stack Overflow 2025** (response counts vary by question) shows Python's adoption accelerating — a 7 percentage point jump in a year — and names **Rust the most admired language (72%)**, followed by Gleam (70%), Elixir (66%), and Zig (64%).
 - **IEEE Spectrum** blends search traffic, Stack Exchange questions, GitHub activity, and research papers.
 
 The stable signal across all of them: **Python, JavaScript/TypeScript, C-family languages, Java, C#, Go, and Rust.** Everything else is domain-dependent.
 
 ---
 
-## 3. Positions 21–50 (the serious second tier)
+## 3. Positions 21–50 in the same index
 
 | # | Language | Rating | Role |
 | --- | --- | --- | --- |
@@ -95,7 +97,7 @@ The stable signal across all of them: **Python, JavaScript/TypeScript, C-family 
 | 36 | Transact-SQL ● | 0.46% | Microsoft SQL Server dialect plus procedural extensions. |
 | 37 | VBScript ○ | 0.46% | Windows administration legacy; deprecated but still present. |
 | 38 | OCaml ◐ | 0.43% | See "Caml"; type-safe functional with native performance. |
-| 39 | TypeScript ●✦ | 0.43% | Typed JavaScript. **#1 on GitHub by activity in 2025.** |
+| 39 | TypeScript ●✦ | 0.43% | Typed JavaScript. **#1 by monthly active contributors in August 2025.** |
 | 40 | Zig ✦ | 0.43% | C replacement, cross-compilation toolchain, Bun's compiler. |
 | 41 | Dart ◐ | 0.43% | Flutter's language for cross-platform mobile and desktop. |
 | 42 | X++ ○ | 0.42% | Microsoft Dynamics 365 ERP extension language. |
@@ -112,33 +114,11 @@ The stable signal across all of them: **Python, JavaScript/TypeScript, C-family 
 
 ## 4. Positions 51–100
 
-TIOBE lists these alphabetically because the differences between them are within noise. Grouped here by family for readability.
-
-**Shells & script:** Bash, Bourne shell, C shell, tcsh, Z shell, Awk, MS-DOS batch, AppleScript, PowerShell-adjacent tooling.
-
-**JVM:** Clojure ◐✦, Groovy ◐, J#, JScript (legacy Microsoft).
-
-**Functional / ML family:** F# ◐, Standard ML, Scheme ◐, Erlang ◐, Elixir ◐✦.
-
-**Logic & constraint:** Prolog (already ranked), plus the Prolog descendants below in §7.
-
-**Data & analytics:** GAMS ◐, Q ◐ (kdb+), SAS (ranked), R (ranked).
-
-**Industrial & control:** Structured Text, Ladder Logic (ranked), Pure Data, EGL, CL (OS/400), XPL, XC, PowerScript, thinBasic, PureBasic, XBase++.
-
-**Web & app:** ActionScript ○, Apex ◐, CFML ○, CoffeeScript ○, ECMAScript (the standard behind JavaScript), Xojo ◐, REBOL ○, Ring, Io, cT, Logo ◐, NetLogo ◐, J.
-
-**Systems & GPU:** Nim ◐, V ✦ (Vlang), Zig (ranked), OpenCL ◐.
-
-**Legacy / mainframe:** BCPL ○, PL/I ○, APL family ◐.
-
-**Blockchain:** Solidity ◐.
-
-**Other:** Tcl ◐, bc, Structured Text, Clojure.
+The publisher lists positions 51–100 alphabetically rather than assigning individual ranks. Consult the [dated index](https://www.tiobe.com/tiobe-index/) for the list; domain groupings below are editorial and must not be mistaken for additional ranked entries.
 
 ---
 
-## 5. The full catalog, by domain
+## 5. A non-exhaustive catalog, by domain
 
 ### 5.1 General-purpose mainstream ●
 
@@ -174,11 +154,11 @@ Haskell, OCaml/Caml, Standard ML ○, F#, Elixir ✦, Erlang, Clojure ✦, Schem
 
 ### 5.9 Logic, constraint and declarative ◐
 
-Prolog, Datalog, Mercury, Answer Set Programming (Clingo, Potassco), Constraint Handling Rules, MiniZinc ◐, Picat ◐, Oz/Mozart ○, Gödel ○, SQL-PSMs, CLIPS ◐ (expert systems), Jess ○, Drools rules DSL ◐, XSLT, XQuery, Prolog-based engines in IBM ILOG CPLEX/OPL.
+Prolog, Datalog, Mercury, Answer Set Programming (Clingo, Potassco), Constraint Handling Rules, MiniZinc ◐, Picat ◐, Oz/Mozart ○, Gödel ○, SQL-PSMs, CLIPS ◐ (expert systems), Jess ○, Drools rules DSL ◐, XSLT, XQuery, OPL (optimization modelling for IBM ILOG CPLEX).
 
 ### 5.10 AI, machine learning and tensor languages ✦
 
-Python (dominant), Mojo ✦ (reached 1.0 in August 2026, open-sourced), R, Julia, CUDA C/C++ ◐, Triton ◐ (OpenAI's GPU kernel language), OpenCL C ◐, SYCL ◐, Halide ◐, JAX-adjacent DSLs, TensorFlow Graph/MLIR dialects ◐, Stan ◐ (probabilistic modelling), PyMC/Pyro are libraries but their model DSLs qualify, Prolog (symbolic AI), Lisp ○ (historical AI), Cython ◐, Numba IR ◐, Max/MSP ◐ and Pure Data ◐ (for audio ML/creative work).
+Python (dominant), Mojo ✦ (official documentation shows 1.1.0 at this review; see its release and stability policy), R, Julia, CUDA C/C++ ◐, Triton ◐ (OpenAI's GPU kernel language), OpenCL C ◐, SYCL ◐, Halide ◐, JAX-adjacent DSLs, TensorFlow Graph/MLIR dialects ◐, Stan ◐ (probabilistic modelling), PyMC/Pyro are libraries but their model DSLs qualify, Prolog (symbolic AI), Lisp ○ (historical AI), Cython ◐, Numba IR ◐, Max/MSP ◐ and Pure Data ◐ (for audio ML/creative work).
 
 ### 5.11 Scientific, numerical and statistical ●
 
@@ -194,7 +174,7 @@ CUDA C/C++, OpenCL C, SYCL, HIP ◐ (AMD), Triton, Chapel, Fortran with coarrays
 
 ### 5.14 Embedded, real-time and safety-critical ●
 
-C, C++, Ada, MISRA-C (a restricted C dialect), Rust (increasingly certified: Ferrocene), Assembly per architecture, Forth ◐, Erlang/Elixir (fault-tolerant systems), TinyML-adjacent C, MicroPython ◐, CircuitPython ◐, Arduino C++, Espruino JS ◐, Simulink/Stateflow ●, SCADE ◐, Lustre ◐ (synchronous dataflow), Esterel ○, VHDL/Verilog for hardware-software co-design, IEC 61131-3 family (below).
+C, C++, Ada, C following MISRA guidelines (coding guidelines, not a separate language), Rust (increasingly certified: Ferrocene), Assembly per architecture, Forth ◐, Erlang/Elixir (fault-tolerant systems), TinyML-adjacent C, MicroPython ◐, CircuitPython ◐, Arduino C++, Espruino JS ◐, Simulink/Stateflow ●, SCADE ◐, Lustre ◐ (synchronous dataflow), Esterel ○, VHDL/Verilog for hardware-software co-design, IEC 61131-3 family (below).
 
 ### 5.15 Hardware description and verification ◐
 
@@ -202,11 +182,11 @@ Verilog, SystemVerilog, VHDL, Verilog-AMS/SystemC ◐, Chisel ◐ (Scala-based),
 
 ### 5.16 Industrial automation and PLC ◐
 
-The IEC 61131-3 five: **Ladder Diagram (Ladder Logic)**, **Structured Text**, **Function Block Diagram**, **Sequential Function Chart**, **Instruction List** (deprecated but in use). Plus vendor dialects: Siemens SCL/AWL, Rockwell RSLogix, Beckhoff TwinCAT, CODESYS, ABAP-adjacent SCADA scripting, GRAFCET ◐, Robot languages: RAPID ◐ (ABB), KRL ◐ (KUKA), Karel ◐ (FANUC), URScript ◐ (Universal Robots), VAL3 ◐, G-code ● (CNC/machining).
+The historically taught IEC 61131-3 family (edition and vendor support vary): **Ladder Diagram (Ladder Logic)**, **Structured Text**, **Function Block Diagram**, **Sequential Function Chart**, **Instruction List** (legacy; check the applicable edition). Plus vendor dialects: Siemens SCL/AWL, Rockwell RSLogix, Beckhoff TwinCAT, CODESYS, vendor-specific SCADA scripting, GRAFCET ◐, Robot languages: RAPID ◐ (ABB), KRL ◐ (KUKA), Karel ◐ (FANUC), URScript ◐ (Universal Robots), VAL3 ◐, G-code ● (CNC/machining).
 
 ### 5.17 Database, storage and query engines ◐
 
-SQL (all dialects), PL/SQL, Transact-SQL, PL/pgSQL, PL/I-adjacent stored procedures, Redis Lua scripting, MongoDB aggregation DSL + JavaScript, Cassandra CQL, HBase filters, Riak ○, Neo4j Cypher, SPARQL, InfluxQL ◐ and Flux ◐ (time series), PromQL ◐ (monitoring queries), KQL, Elasticsearch Query DSL, Solr, SQLite SQL, DuckDB SQL, KDB+/Q, GraphQL, OData query language ◐.
+SQL (all dialects), PL/SQL, Transact-SQL, PL/pgSQL, engine-specific stored-procedure languages, Redis Lua scripting, MongoDB aggregation DSL + JavaScript, Cassandra CQL, HBase filters, Riak ○, Neo4j Cypher, SPARQL, InfluxQL ◐ and Flux ◐ (time series), PromQL ◐ (monitoring queries), KQL, Elasticsearch Query DSL, Solr, SQLite SQL, DuckDB SQL, KDB+/Q, GraphQL, OData query language ◐.
 
 ### 5.18 Shells, scripting and system administration ●
 
@@ -218,7 +198,7 @@ Perl, AWK, sed, XSLT, XQuery, XPath, jq, Regular expressions (a real language fa
 
 ### 5.20 Graphics, shaders and game scripting ◐
 
-GLSL, HLSL, Metal Shading Language, WGSL, Cg ○, RenderMan Shading Language ◐, OpenSL ES, CUDA for graphics, GML (GameMaker), GDScript ◐ (Godot), Lua (Roblox Luau ◐), Unreal Blueprints ◐ (visual), Unity C# + ShaderLab/Bolt-visual, Verse ✦ (Epic, for UEFN), ActionScript ○ (Flash legacy), Haxe, C# in Unity, Blueprint-style node graphs generally, Blender's Python API, MEL ◐ and Python in Maya, VEX ◐ (Houdini), Processing ◐, p5.js ●, openFrameworks C++, Shadertoy GLSL.
+GLSL, HLSL, Metal Shading Language, WGSL, Cg ○, RenderMan Shading Language ◐, Open Shading Language (OSL), CUDA for graphics, GML (GameMaker), GDScript ◐ (Godot), Lua (Roblox Luau ◐), Unreal Blueprints ◐ (visual), Unity C# + ShaderLab/Bolt-visual, Verse ✦ (Epic, for UEFN), ActionScript ○ (Flash legacy), Haxe, C# in Unity, Blueprint-style node graphs generally, Blender's Python API, MEL ◐ and Python in Maya, VEX ◐ (Houdini), Processing ◐, p5.js ●, openFrameworks C++, Shadertoy GLSL.
 
 ### 5.21 Configuration, infrastructure and policy DSLs ◐
 
@@ -240,17 +220,17 @@ Modelica, Simulink/Stateflow, Vensim/Stella system dynamics ◐, GPSS ○, Arena
 
 Scratch (ranked #15 globally), Blockly ◐, Snap! ◐, Alice ◐, App Inventor ◐, NetLogo ◐, Logo (and its Turtle dialects), Processing, p5.js, Racket (as teaching language), Python (as teaching language), BBC micro:bit MakeCode ◐, Arduino Blocks, Twine ◐, Ren'Py ◐, Inform 7 ◐ (natural-language-ish IF authoring), Godot GDScript for learners, Small Basic ○, Pascal (still the teaching language in many curricula), PascalABC.NET ◐, Flowgorithm ◐, Raptor ◐, Kodu ○, Stagecast ○, Squeak/Smalltalk ◐, Etoys ○.
 
-### 5.26 Object-oriented lineage, still maintained ◐
+### 5.26 Object-oriented lineage ◐
 
 Smalltalk (Pharo ◐, Squeak ◐, GNU Smalltalk ◐, VisualWorks ◐), Simula ○ (the origin), Objective-C, C++, Java, C#, Eiffel ◐ (Design by Contract — still maintained), Beta ○, CLOS ◐, Self ○, Newspeak ○, Ruby, Python, Dart, Scala, Kotlin.
 
-### 5.27 Esoteric but genuinely maintained ◐
+### 5.27 Esoteric language discovery ◐
 
-These have working interpreters, communities, and releases — they are "available," just not useful.
+Implementation availability varies. These entries can be useful for language-design experiments and puzzles; check the individual project before installing.
 
 Brainfuck, Befunge, INTERCAL, LOLCODE, Whitespace, Malbolge, Shakespeare, Piet, Chef, Unlambda, FALSE, Befunge-93/98, GolfScript, CJam, Jelly, 05AB1E, Hexagony, Ook!, Cow, Thue, ///, Semicolon, Deadfish, JSFuck, Rockstar, Velato, Taxi, ZOMBIE, Whenever, ArnoldC, Chicken, Emojicode, Trumpscript, Legit, ChucK-adjacent oddities.
 
-### 5.28 Historical languages still technically installable ○
+### 5.28 Historical languages to investigate ○
 
 FORTRAN (original, via emulation), ALGOL 58/60/68, Lisp 1.5, COBOL-60, BASIC (many dialects), Dartmouth BASIC, PL/I, APL\360, SNOBOL, Icon ◐, SETL ○, PL/M ○, Pascal, Turbo Pascal ○, Modula ○, Mesa ○, Euclid ○, CLU ○, Alphard ○, Gypsy ○, Concurrent Pascal ○, Occam ○ (transputer), Ada 83, CPL ○, B ○, BCPL ○, JOSS ○, IPL ○, FLOW-MATIC ○, Autocode ○, MAD ○, JOVIAL ○ (still used in some avionics), Coral ○, CMS-2 ○, TACPOL ○, SPL ○, RTL/2 ○, Forth (still used in firmware), PostScript, MUMPS, Snobol4.
 
@@ -278,15 +258,15 @@ A language stays available through one of five mechanisms. This is worth knowing
 
 | Mechanism | Example | Risk profile |
 | --- | --- | --- |
-| **Standards body + multiple vendors** | Fortran (ISO/IEC 1539, dozen-plus compilers), Ada (ISO, GNAT + AdaCore), C/C++ (ISO, GCC/Clang/MSVC), COBOL (ISO, IBM + GnuCOBOL + Micro Focus) | Very low risk. Will outlive most of us. |
-| **Single-vendor platform commitment** | Swift (Apple), C# (.NET, Microsoft), Kotlin (JetBrains/Google), ABAP (SAP), X++ (Microsoft), Apex (Salesforce) | Low. Dies only if the platform dies. |
+| **Standards body + multiple vendors** | Fortran (ISO/IEC 1539, dozen-plus compilers), Ada (ISO, GNAT + AdaCore), C/C++ (ISO, GCC/Clang/MSVC), COBOL (ISO, IBM + GnuCOBOL + Micro Focus) | Multiple implementations may reduce dependency risk; platform and vendor support still need checking. |
+| **Single-vendor platform commitment** | Swift (Apple), C# (.NET, Microsoft), Kotlin (JetBrains/Google), ABAP (SAP), X++ (Microsoft), Apex (Salesforce) | Support follows the vendor and platform lifecycle; migration and licensing risks remain. |
 | **Open-source community with corporate backing** | Rust (Foundation), Go (Google), TypeScript (Microsoft), Python (PSF), Elixir (community + Dashbit), Zig (ZSF) | Low to medium. Governance matters. |
 | **Niche community, no corporate owner** | Crystal, Nim, D, Hare, Hylo, Vale, Odin | Medium. Alive but you may be on your own. |
 | **Frozen but running critical systems** | VB6, Classic Visual Basic, Visual FoxPro, PL/I, RPG, MUMPS, Turbo Pascal-era code | Available, not growing. Maintenance-only future. |
 
 Signals that a language is genuinely available *right now*:
 
-- Releases shipped in the last 12 months (Mojo 1.0 in August 2026, IBM Enterprise COBOL 6.5 PTFs through July 2026, Intel `ifx` Fortran 2026.0).
+- A recent release with an official changelog, supported platforms and a stated maintenance policy.
 - A package manager with active registries (PyPI, npm, crates.io, Hackage, Hex, Maven Central, NuGet, Packagist, LuaRocks).
 - Books published in the last 3 years, and Stack Overflow tags with recent activity.
 - Support in at least two editors/IDEs with language servers.
@@ -303,13 +283,13 @@ Signals it is only *nominally* available:
 
 ## 7. Languages that moved in 2026 (worth noting)
 
-- **Rust entered the TIOBE top 10 for the first time** in July 2026 and held it in September.
+- **Rust is #10 in the September 2026 TIOBE snapshot**; this position alone does not establish when it first entered the top ten.
 - **MATLAB fell out of the top 20** for the first time in more than a decade, now around position 27 — Python, R, and Julia have collectively taken its territory.
 - **Julia** climbed back to position 21, close to re-entering the top 20.
 - **Ada and Objective-C re-entered the top 20**, displacing Perl and Ruby.
-- **Python dipped below 18%** on TIOBE's scale but still leads every major ranking, with Stack Overflow showing a 7-point adoption jump.
+- **Python dipped below 18%** on TIOBE's scale and remains first in this TIOBE snapshot, with Stack Overflow showing a 7-point adoption jump.
 - **TypeScript hit #1 on GitHub Octoverse 2025**, driven substantially by AI-assisted and typed-language development.
-- **Mojo reached 1.0 and was open-sourced** (August 2026), making it the first genuinely new language to target AI infrastructure with a Python-like surface.
+- **Mojo reached 1.0 and was open-sourced** (August 2026), according to the [official Mojo documentation and linked announcements](https://mojolang.org/docs/). This is a release milestone, not a claim of uniqueness.
 - **Gleam** became the second-most-admired language (70%) on the Stack Overflow survey in its first appearance.
 
 ---
@@ -341,7 +321,7 @@ If the question is "which languages can I actually write and run software in tod
 - **~700** languages with enough of a footprint to be worth knowing exists.
 - **~8,945** languages ever documented; the rest are history, research, or jokes.
 
-Everything in this document is installable today. Nothing here is extinct — that is the whole point of the list.
+This catalog has not been installation-tested as a whole. Verify the implementation, supported OS, license and maintenance status for any selected language. The runnable evidence in this repository is limited to POL’s configured snippet checks.
 
 ### Sources
 
@@ -355,7 +335,7 @@ Everything in this document is installable today. Nothing here is extinct — th
 - [IBM Enterprise COBOL for z/OS fix list and new features](https://www.ibm.com/support/pages/fix-list-and-new-features-enterprise-cobol-zos)
 - [GnuCOBOL / SuperBOL](https://superbol.eu/en/solutions/gnucobol)
 - [IEEE Spectrum: Long-Enduring COBOL May Still Have a Shelf Life](https://spectrum.ieee.org/cobol-programming-shelf-life)
-- [Mojo programming language (Wikipedia)](https://en.wikipedia.org/wiki/Mojo_(programming_language)) and [mojolang.org](https://mojolang.org/)
+- [Mojo official documentation, release announcements and stability policy](https://mojolang.org/docs/)
 - [Niche Modern Programming Languages 2026 deep dive](https://www.youngju.dev/blog/culture/2026-05-16-niche-modern-languages-2026-crystal-pony-mojo-carbon-hare-roc-vale-virgil-deep-dive.en)
 - [How many programming languages are there? (HOPL count)](https://www.testgorilla.com/blog/how-many-programming-languages/)
 - [Wikimedia: List of programming languages](https://en.wikipedia.org/wiki/List_of_programming_languages)

@@ -1,7 +1,9 @@
-# Same program, fifteen languages
+# POL — Programming Languages
 
 An app that shows the fundamentals of programming languages by doing the same thirteen
 tasks in fifteen languages — the similarities first, then the real differences.
+
+POL is the English-only programming foundations companion in the [aserdargun.com](https://aserdargun.com/) learning system, under [GPU](https://gpu.aserdargun.com/) alongside [GEX](https://gex.aserdargun.com/). These are learning relationships; POL displays examples and does not execute programs in the browser. The About & sources view links the portfolio, dialect boundaries and official references.
 
 **Assembly · C · C++ · Rust · Go · Java · C# · Python · JavaScript · Bash · SQL · Haskell · OCaml · Prolog · Datalog**
 
@@ -30,10 +32,10 @@ filesystem. The only external requirement is a browser.
 |---|---|---|
 | Languages | 15 | profiled on the same twelve axes, in the order C grew up: machine → systems → managed → dynamic → shell → relational → functional → logic |
 | Tasks | 13 | each one isolates a different fundamental, stated once in plain English |
-| Code examples | 195 | the same task solved in every language that can express it |
+| Code examples | 187 | implementations, including explicitly reduced examples |
 | Executed & output-checked | 88 | run on the machine this was built on, with stdout compared to the documented result |
-| Hand-reviewed | 107 | no toolchain available locally; written and read carefully instead |
-| Deliberately impossible | 8 | tasks a language genuinely cannot express — each with the reason why |
+| Hand-reviewed | 99 | code without a recorded passing run from the configured verifier |
+| Scope notes | 8 | omitted implementations or dialect limits, not blanket impossibility claims |
 
 The tasks, in the order the app presents them:
 
@@ -42,8 +44,8 @@ The tasks, in the order the app presents them:
 **Paradigms** — higher-order functions · sum types and pattern matching · error handling
 **Systems reality** — concurrency · graph reachability (the flagship imperative-versus-declarative comparison)
 
-Plus three reference sections: twelve **fundamentals** pages (each stating what all fifteen do
-identically before listing the positions they take), a **capability matrix** of 14 capabilities ×
+Plus three reference sections: twelve **fundamentals** pages (each introducing common ideas
+before listing implementation differences), a **capability matrix** of 15 capabilities ×
 15 languages, and a **compare** view that puts any two or three languages side by side.
 
 ## How the content is organised
@@ -78,7 +80,7 @@ tools/check-ui.mjs         identity + highlighter invariants + headless-browser 
   expect: '1\n2\nFizz\n...', // exact stdout, or null when it is not printable
   note: 'why it looks like this in this language',
   partial: 'scope reduced, and why',   // optional
-  na: true                             // optional: not expressible, with note as the reason
+  na: true                             // optional: omitted from this corpus, with a scope note
 }
 ```
 
@@ -89,12 +91,13 @@ and `takeaway` (what the fifteen versions show collectively). The app renders `t
 ## Verifying it
 
 ```bash
-node tools/verify.mjs        # runs every snippet it can; exits non-zero on any mismatch
+node tools/verify.mjs        # runs every configured runner available; exits non-zero on any mismatch
 node tools/verify.mjs --only graph
 node tools/verify.mjs --portable --no-write   # what CI runs: skips the arm64-macOS-only
                                               # assembly, and does not rewrite the manifest
-node tools/check-ui.mjs      # tokenizer invariants + renders 13 routes in headless Chrome
+node tools/check-ui.mjs      # tokenizer invariants + renders all task, language and concept routes in headless Chrome
 node tools/check-ui.mjs --shots
+# Optional: POL_CHROME=/absolute/path/to/chrome node tools/check-ui.mjs
 ```
 
 CI runs the same corpus check on every push to `main`
@@ -103,10 +106,10 @@ and then uploads the repository as the Azure Static Web Apps artifact — there 
 to run, so the validation *is* the release gate.
 
 `verify.mjs` loads the data files in a sandbox, writes each snippet to a temp file, runs the
-command in `run`, and compares stdout to `expect`. It then rewrites `data/verification.js`, which
+command in `run`, and compares stdout to `expect` after trimming boundary newlines and trailing whitespace. On a successful full run it rewrites `data/verification.js`; partial `--only` checks do not rewrite it. This file
 is what the `✓ runs` badge in the UI reads. `check-ui.mjs` checks that the highlighter neither
 loses text nor leaks markup, and that each route renders content in a real browser (a thrown
-error leaves the app empty, which the DOM check catches).
+error leaves the app empty, which the DOM check catches). The checker prefers an already-installed Playwright headless Chromium binary, falls back to desktop Chrome, and accepts a `POL_CHROME` override. Each browser invocation uses a temporary profile, and a timed-out check is terminated without touching the user’s browser profile.
 
 It also holds the identity contract, because a title that lives in two files will eventually
 disagree with itself. The page is titled `POL - Programming Languages` — the portfolio convention
@@ -124,15 +127,16 @@ away from the family palette (`#121310` / `#c8ff36`). The references stay relati
 because the same artifact is also served from a subpath, which an absolute `/icon.png` would
 break — the deploy workflow enforces that too.
 
-When this was last run:
+Local validation on 21 September 2026 (arm64 macOS):
 
 ```
-tasks      : 13   snippets: 195
+tasks      : 13   entries: 195   code: 187
 executed   : 88 (output matched)
 failed     : 0
-not run    : 107 (no local toolchain)
+not run    : 99 (no configured/available runner)
+scope      : 8 (no code)
 highlighter: 187 snippets tokenized, 0 problems
-browser    : 13 routes rendered
+browser    : every task, language and concept route rendered
 ```
 
 ## Adding to it
@@ -143,7 +147,7 @@ Run `node tools/verify.mjs --only <taskId>` — it will tell you which languages
 which snippets disagree with their declared output.
 
 **A language:** add an object to `window.LANGUAGES` with the twelve axes from `window.AXES`,
-add a tokenizer spec in `assets/highlight.js` and a keyword list to `tools/verify.mjs`, then
+add a tokenizer spec in `assets/highlight.js` and, if execution is supported, a runner to `tools/verify.mjs`, then
 fill in the snippets. The profiles, matrix column, chips and filters all follow automatically.
 
 ## What was verified where
@@ -151,7 +155,7 @@ fill in the snippets. The profiles, matrix column, chips and filters all follow 
 Verified by execution on macOS (arm64), with the toolchains that were installed:
 Assembly (`clang`, arm64 macOS ABI), C, C++, Python 3, JavaScript (Node), Bash, SQL (SQLite).
 
-Reviewed by hand, because no local toolchain existed: Rust, Go, Java, C#, Haskell, OCaml,
+Reviewed without a configured execution runner: Rust, Go, Java, C#, Haskell, OCaml,
 Prolog, Datalog. Two consequences worth knowing before you copy anything:
 
 - The assembly examples target **arm64 macOS** specifically: `_main`, `adrp`/`add` address pairs,
@@ -179,7 +183,7 @@ in code*, with the similarities marked first at every step.
 - Fifteen languages cannot cover every paradigm. Array languages (APL, J), homoiconic Lisp,
   actor runtimes (Erlang), hardware description languages and proof assistants are all absent, and
   their absence means this app cannot claim to show "everything programming has produced".
-- Where a toolchain was missing, the code was reviewed rather than run. The badges in the UI say
+- Where a configured runner or toolchain was missing, the code was reviewed rather than run. The badges in the UI say
   which is which, per snippet.
 - Toolchain behaviour changes between versions. The Bash examples deliberately avoid bash 4+
   features because macOS still ships 3.2; on a modern Linux they could be written more shortly.

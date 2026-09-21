@@ -21,7 +21,7 @@ window.RECIPES_BASICS = [
     title: 'Hello, World!',
     prompt: 'Print exactly the text "Hello, World!" to standard output and exit successfully.',
     why: 'The smallest program exposes the whole delivery pipeline: what must exist before a single character reaches the screen. Comparing them shows what a language assumes for you — an entry point, a runtime, a session, a compiler.',
-    takeaway: 'All fifteen produce the same twelve characters, and the ceremony ranges from one line (Bash, Python, SQL) to an entry symbol, a saved frame and a libc call (Assembly). The interesting split is not "easy versus hard" but *what the language thinks a program is*: a sequence of instructions (C, Assembly), a declaration of facts (Prolog, Datalog), a query (SQL), or an expression to evaluate (Haskell, OCaml).',
+    takeaway: 'The examples represent the same greeting, and the ceremony ranges from one line (Bash, Python, SQL) to an entry symbol, a saved frame and a libc call (Assembly). The interesting split is not "easy versus hard" but *what the language thinks a program is*: a sequence of instructions (C, Assembly), a declaration of facts (Prolog, Datalog), a query (SQL), or an expression to evaluate (Haskell, OCaml).',
     snippets: {
       asm: {
         file: 'hello.s', effort: 4,
@@ -183,7 +183,7 @@ greeting("Hello, World!").
     title: 'Values, types and mutation',
     prompt: 'Hold an integer (42), a floating-point number (3.14), a string ("Ada"), a list of strings and a small lookup table. Increment the integer by one, then print everything on one line as: age=43 pi=3.14 name=Ada tags=[c,rust] scores={alice:1,bob:2}',
     why: 'Names, types and mutability are the first real design decisions a language makes. This task makes the same five values exist in all fifteen and shows what each language calls a "variable" — a box, a binding, a cell, or nothing at all.',
-    takeaway: 'The similarity is total at the top: every language holds these five things and prints them in the same format. The differences sit in three places. First, *whether a name is a box or a binding*: Assembly, C and Bash give you a memory location; Haskell, OCaml and Prolog give you a name for a value that never changes. Second, *what a collection is*: in C a list is a convention and in C++ and Rust a library type, while Python and JavaScript build one in. Third, *maps*: built in for Python, JavaScript, Java, C#, Go, Bash and SQL; a library for C++, Rust and Haskell; and absent in Assembly, Prolog and Datalog, where something else does the job.',
+    takeaway: 'The task compares naming, mutation and data representation. Some examples print a reduced result, identified on the card. Collections may be language syntax, library types, parallel arrays or relations; these choices do not determine whether a language can represent the information at all.',
     snippets: {
       asm: {
         file: 'variables.s', effort: 5, expect: 'age=43 pi=3.14 name=Ada tags=[c,rust]',
@@ -395,7 +395,7 @@ age += 1
 scores_text = ",".join(f"{k}:{v}" for k, v in scores.items())
 print(f"age={age} pi={pi} name={name} tags=[{','.join(tags)}] scores={{{scores_text}}}")`,
         expect: 'age=43 pi=3.14 name=Ada tags=[c,rust] scores={alice:1,bob:2}',
-        note: 'No declarations and no types. `age = 42` binds a name, and the same name can point at a string on the next line — the name is not a box.'
+        note: 'Assignment binds a name to an object with a runtime type. The same name can later refer to a string; that changes the binding, not the type of the original integer.'
       },
       js: {
         file: 'variables.js', effort: 1,
@@ -413,7 +413,7 @@ console.log('age=%s pi=%s name=%s tags=[%s] scores={%s}',
 console.log('types: %s %s %s %s', typeof age, typeof pi, typeof name, typeof tags);`,
         expect: ['age=43 pi=3.14 name=Ada tags=[c,rust] scores={alice:1,bob:2}',
                  'types: number number string object'].join('\n'),
-        note: 'One numeric type covers both 42 and 3.14, and everything else is an object. `const` protects the binding, not the value: a const object can still be mutated inside.'
+        note: 'Number covers both 42 and 3.14; BigInt is a separate numeric type. Strings and booleans are also primitives. const protects the binding, not the contents of an object.'
       },
       bash: {
         file: 'variables.sh', effort: 2,
@@ -745,7 +745,7 @@ for (int i = 1; i <= 15; i++)
     else:
         print(i)`,
         expect: ['1','2','Fizz','4','Buzz','Fizz','7','8','Fizz','Buzz','11','Fizz','13','14','FizzBuzz'].join('\n'),
-        note: '`range(1, 16)` is a lazy sequence, not a loop counter: the same for-in construct iterates lists, files and generators, which is why Python needs only one loop keyword.'
+        note: 'range(1, 16) is a compact sequence. for iterates over its values, just as it iterates lists or generators; Python also has a while loop.'
       },
       js: {
         file: 'fizzbuzz.js', effort: 1,
@@ -867,7 +867,7 @@ plain(i) :- n(i), i % 3 != 0, i % 5 != 0.
     title: 'Functions and calls',
     prompt: 'Define an addition of two integers, a square of one integer, and a clamp that limits a value to the range 0..100 when called with one argument. Call them as add(3,4), square(3) and clamp(150), and print: add=7 square=9 clamp=100',
     why: 'Abstraction is the oldest idea in programming and every language here has it. The differences appear in the details: can arguments have defaults, can functions be overloaded, can they return more than one value, and are functions values in their own right.',
-    takeaway: 'The syntax of a function differs far more than its semantics. The genuine divides are: *default arguments* (C++, C#, Python, JavaScript, Bash) versus languages that refuse them (C, Go, Rust, Java, Haskell, OCaml, Prolog — you write a wrapper, an overload, or an options type instead); *multiple return values* (Go natively, Python and C# by tuple, most languages not at all); and *whether a function is a value you can pass around* — trivial in Haskell, OCaml, JavaScript and Python, a function pointer or interface in C, C++, Rust, Go and Java, and simply a branch target in Assembly.',
+    takeaway: 'Functions package reusable work, but calling conventions differ. C++, C#, Python, JavaScript and OCaml support optional/default arguments; Bash can supply defaults through parameter expansion. Go returns multiple results, while many languages package results in tuples, records or structs. C uses function pointers; functional languages make composition central. SQL and logic examples express the calculation through queries or predicates.',
     snippets: {
       asm: {
         file: 'functions.s', effort: 4, expect: 'add=7 square=9 clamp=100',
@@ -1013,7 +1013,7 @@ func main() {
 	fmt.Printf("add=%d square=%d clamp=%d\\n", sum, sq, value)
 }`,
         expect: 'add=7 square=9 clamp=100',
-        note: 'No defaults and no overloading, but functions return tuples — the same mechanism that carries the (result, error) pair through every Go program. Note the shared parameter list `a, b int`.'
+        note: 'Go has multiple return values, but they are not first-class tuples. The shared parameter declaration a, b int gives both parameters the same type.'
       },
       java: {
         file: 'Functions.java', effort: 2,
@@ -1106,7 +1106,7 @@ SELECT 'add=' || (SELECT a + b FROM add_pair)
                                  WHEN x > hi THEN hi
                                  ELSE x END FROM clamp_row) AS result;`,
         expect: 'add=7 square=9 clamp=100',
-        note: 'Only built-in operators and functions exist in the standard; anything else is a query, or a procedural extension in a particular dialect (PL/pgSQL, PL/SQL, T-SQL). The CTE had to be renamed from `add` to `add_pair`, because ADD is a reserved word in SQLite.'
+        note: 'This SQLite example uses expressions and CTEs rather than a stored function. User-defined functions and procedural routines depend on the engine; ADD is a reserved word, so the CTE is called add_pair.'
       },
       haskell: {
         file: 'functions.hs', effort: 1,
@@ -1161,7 +1161,7 @@ main :-
     clamp(150, 0, 100, C),
     format("add=~w square=~w clamp=~w~n", [Sum, Sq, C]).`,
         expect: 'add=7 square=9 clamp=100',
-        note: 'A "function" is a relation: the result is just another argument. `add(A, B, 7)` will even search for the pairs that make seven, which a function call cannot do.'
+        note: 'The output is another argument, but this predicate uses is/2: both numeric inputs must already be known. add(A, B, 7) does not enumerate pairs. Relational arithmetic requires constraints such as CLP(FD) or an explicit generator.'
       },
       datalog: {
         file: 'functions.dl', effort: 4, expect: null,

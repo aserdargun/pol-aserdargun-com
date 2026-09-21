@@ -9,13 +9,13 @@ window.RECIPES_SYSTEMS = [
     id: 'concurrency',
     group: 'Systems reality',
     title: 'Concurrency',
-    prompt: 'Add the numbers 1 to 4 in two parallel workers — one taking 1 and 2, the other taking 3 and 4 — accumulating into a shared total, then print total=10. Use whatever concurrency primitive the language treats as native.',
+    prompt: 'Compute the sum of 1 to 4 with two workers or concurrent tasks: one takes 1 and 2, the other 3 and 4. Combine their contributions and print total=10. State whether the example uses parallel execution, interleaving, shared memory or message passing.',
     why: 'Concurrency is where a language stops being notation and becomes a runtime. The five real options — OS threads with locks, green threads with channels, a managed thread pool, an event loop, and background processes — each come with a different failure mode, and the language you choose decides which one you will be fighting.',
-    takeaway: 'The same total of 10 is reached by five genuinely different mechanisms. Assembly and C hand the work to the operating system: you create a thread, and every guarantee about what it sees is yours to establish. C++, Rust, Java and C# run real threads on a managed or compiled runtime, with Rust\'s Send/Sync traits going furthest by refusing to compile code that shares data unsafely. Go replaces threads with goroutines scheduled by its own runtime and channels as the interface, which is a different model rather than a faster one. JavaScript has exactly one thread and an event loop, so the "two workers" interleave instead of running at once. Bash uses processes, so its parallelism is real but its shared state is the file system. Haskell adds software transactional memory — atomic blocks that compose — and OCaml 5 gives real parallel domains. For SQL, concurrency is the engine\'s business and your job is only to declare which transaction anomalies you will tolerate; Datalog has no notion of it at all.',
+    takeaway: 'The same total can come from different scheduling and sharing models. C and C++ use threads and locks; Rust checks safe sharing, Go schedules goroutines, and managed runtimes offer task or thread APIs. This JavaScript example interleaves tasks on one event loop; workers would require another implementation. Bash combines process results. Haskell uses STM and OCaml 5 uses domains. SQL and Datalog leave worker scheduling to their engines. Equal output does not prove parallel execution or equal performance.',
     snippets: {
       asm: {
         file: 'concurrency.s', effort: 5, na: true,
-        note: 'Threads are an operating system facility, not a language one: this would be a call to pthread_create with a stack you allocate yourself, and the ordering of two cores writing to one address is decided by hardware coherence rules you cannot see from here. The language does have the pieces — ldxr/stxr give you a compare-and-swap loop — which is proof of the bottom line: every lock in this task is, at machine level, a retry loop around those two instructions.'
+        note: 'A threaded assembly example is omitted here. Assembly can call pthread_create and synchronization APIs just as C can; atomics alone do not replace a complete synchronization protocol.'
       },
       c: {
         file: 'concurrency.c', effort: 3, expect: 'total=10',
@@ -254,7 +254,7 @@ total=$(awk '{ s += $1 } END { print s }' "$out")
 rm -f "$out"
 printf 'total=%s\\n' "$total"`,
         expect: 'total=10',
-        note: 'Two background jobs and a wait: the parallelism is real, and it comes from the operating system rather than the language. Nothing is shared, so nothing can race — the price is that results have to travel through files or pipes.'
+        note: 'Background jobs can run in parallel. Separate files carry the subtotals in this example. Processes can still race on shared files or other external resources; isolation of local variables does not remove every race.'
       },
       sql: {
         file: 'concurrency.sql', effort: 2, na: true,
@@ -317,7 +317,7 @@ let () =
       },
       prolog: {
         file: 'concurrency.pl', effort: 3, na: true,
-        note: 'Concurrency is not part of the logic paradigm: a Prolog program is a search, and the engine is free to reorder it. SWI-Prolog does expose thread_create/3 and message queues as library predicates, but nothing in the language\'s semantics depends on them — which is exactly the opposite of Go, where goroutines are the semantics.'
+        note: 'The corpus omits a threaded Prolog implementation. SWI-Prolog supports thread_create/3, message queues and mutexes; concurrency is a runtime capability even though it is not part of pure Horn-clause logic.'
       },
       datalog: {
         file: 'concurrency.dl', effort: 3, na: true,
@@ -332,7 +332,7 @@ let () =
     title: 'Graph reachability — imperative versus declarative',
     prompt: 'Given the directed graph a→b, b→c, a→d, d→e, find every node reachable from node a, excluding a itself, and print them in alphabetical order: reachable=b,c,d,e',
     why: 'This is the same question as the transitive closure of a relation, and it is the task where the paradigms stop being a matter of taste. In an imperative language you choose a traversal, manage a frontier and a visited set, and then argue with yourself about duplicates and ordering. In the declarative three, reachability *is* the recursive definition, and the engine is responsible for computing it.',
-    takeaway: 'The imperative solutions are all the same algorithm wearing different clothes: a worklist, a visited set, a loop that terminates when the frontier empties — ten to twenty lines each, and every one of them a place to introduce a bug. The SQL recursive CTE is five lines, Prolog is two clauses, and Datalog is two rules; none of them mentions a queue, a visited set or an order of evaluation. Note also how each handles duplicates: C relies on the `seen` array, Python on a set, SQL on UNION (which deduplicates) versus UNION ALL (which does not), Prolog on `findall` plus `sort`, and Datalog on the fact that relations are sets by construction. The declarative versions are not "shorter because they hide the work" — they are shorter because the algorithm is *derived* from the definition, and the engine picks the strategy.',
+    takeaway: 'The supplied acyclic graph lets us compare explicit traversal and recursive relations. Some imperative examples use worklists, assembly uses Warshall closure, and functional examples use recursive sets. SQL UNION and Datalog set semantics remove duplicates during derivation. The untabled Prolog clauses use depth-first search; sorting afterward removes duplicate answers but does not prevent non-termination on cyclic input.',
     snippets: {
       asm: {
         file: 'graph.s', effort: 5, expect: 'reachable=b,c,d,e',
@@ -653,7 +653,7 @@ while frontier:
 
 print(f"reachable={','.join(sorted(seen))}")`,
         expect: 'reachable=b,c,d,e',
-        note: 'Seven lines, because the dictionary, the set and the deque are all built in. Note that `seen` excludes the start node naturally here — the start is in the frontier but never added to `seen`.'
+        note: 'deque supplies the frontier and a set tracks discovered nodes. The given graph is acyclic; for cyclic graphs, mark the start as visited before traversal and exclude it from the final output.'
       },
       js: {
         file: 'graph.js', effort: 1, expect: 'reachable=b,c,d,e',
@@ -789,7 +789,7 @@ main :-
     atomic_list_concat(Sorted, ',', Text),
     format("reachable=~w~n", [Text]).`,
         expect: 'reachable=b,c,d,e',
-        note: 'Two clauses and no algorithm: "Y is reachable from X if there is an edge, or if there is an edge to a Z from which Y is reachable". The search engine discovers the traversal. `sort/2` is doing double duty — ordering and deduplication.'
+        note: 'Two clauses describe reachability; SWI-Prolog normally explores them depth first. findall plus sort collects and deduplicates results for this acyclic graph. Cyclic input needs tabling or an explicit visited set.'
       },
       datalog: {
         file: 'graph.dl', effort: 1, expect: null,

@@ -363,7 +363,7 @@ even(X) :- 0 is X mod 2.`,
       },
       datalog: {
         file: 'hof.dl', effort: 4, na: true,
-        note: 'Datalog has no functions at all — neither first-class nor first-order ones. Rules can be reused and the engine may parallelise them, but "passing behaviour as a value" is outside the paradigm entirely: there is nothing to pass.'
+        note: 'Classical relational Datalog does not treat behavior as a first-class value. Soufflé has arithmetic and user-defined functors, but they are not the same abstraction as passing a closure in this task.'
       }
     }
   },
@@ -374,7 +374,7 @@ even(X) :- 0 is X mod 2.`,
     title: 'Sum types and pattern matching',
     prompt: 'Model a shape that is either a circle with a radius or a rectangle with a width and a height. Compute the area of circle(2) and rectangle(3,4), and treat an unrecognised shape as 0. Use 3.14159 for pi. Print: circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
     why: 'Data modelling is the decision that ages worst. A shape is exactly one of two things, and the way a language expresses "exactly one of" determines whether the compiler can help you: whether you can forget a case, whether you can construct an impossible value, and whether adding a third shape breaks your program at build time or at three in the morning.',
-    takeaway: 'Haskell, OCaml and Rust put this at the centre of the language: `Circle Double | Rect Double Double` is closed, exhaustive, and a match that forgets a case does not compile. Java 21 and C# arrive at the same guarantee from the object-oriented side with sealed hierarchies, records and switch patterns, and C++ does it with std::variant, whose visitor must handle every alternative. Python 3.10 added structural pattern matching and dataclasses, JavaScript has only a tag field compared by hand, and Go has no sum type at all — an interface plus a type switch is the closest analogue, and the compiler will not tell you when a case is missing. C writes it as a struct with a discriminant, which is exactly what the functional languages compile to. In SQL the discriminant is a column; in Prolog it is a compound term matched by clause heads; and in Datalog you cannot compute an area at all, because with no function symbols there are no values to compute.',
+    takeaway: 'Rust enums require exhaustive matches. GHC and OCaml can diagnose missing patterns, but whether warnings stop a build depends on compiler options. Java sealed hierarchies support exhaustive switch checks; C# abstract records do not automatically close a hierarchy. C++ std::visit requires a visitor callable for every alternative. Dynamic tags, SQL columns and logic relations can encode shapes with different enforcement. The scope notes explain omitted representations.',
     snippets: {
       asm: {
         file: 'adt.s', effort: 5, expect: 'circle(2)=12.57 rect(3,4)=12.00',
@@ -494,7 +494,7 @@ int main() {
               << " unknown=" << area(Shape{Unknown{}}) << std::endl;
 }`,
         expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
-        note: 'std::variant knows which alternative is active and throws on a bad access, but an unhandled alternative in the visitor is still a runtime error unless you use the overload-set idiom that makes the compiler check exhaustiveness.'
+        note: 'std::visit requires the visitor to be callable for every alternative at compile time. A generic catch-all can accept a new alternative without implementing its intended behavior; type coverage is not a proof of semantic completeness.'
       },
       rust: {
         file: 'adt.rs', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
@@ -655,7 +655,7 @@ console.log('circle(2)=%s rect(3,4)=%s unknown=%s',
       },
       bash: {
         file: 'adt.sh', effort: 4, na: true,
-        note: 'Bash has no compound values: an array holds strings, and no single value can carry both a tag and a payload. You would keep them in separate variables and remember which ones are valid — the matching half of the idea cannot be expressed at all.'
+        note: 'This corpus omits a shell encoding of shapes. Bash can represent a tag and payload with strings or arrays and dispatch with case, but it has no built-in algebraic data type or exhaustiveness checker.'
       },
       sql: {
         file: 'adt.sql', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
@@ -695,7 +695,7 @@ main = putStrLn $ "circle(2)=" ++ fmt (area (Circle 2))
                 ++ " rect(3,4)=" ++ fmt (area (Rect 3 4))
                 ++ " unknown=" ++ fmt (area Unknown)`,
         expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
-        note: 'This is where the idea comes from: a type is a set of alternatives and matching is how you consume one. Add a Triangle constructor and every function that matches on Shape stops compiling until it handles the new case.'
+        note: 'Algebraic data types name the alternatives. GHC can report incomplete patterns with -Wincomplete-patterns; -Werror=incomplete-patterns makes that diagnostic a build error.'
       },
       ocaml: {
         file: 'adt.ml', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
@@ -736,7 +736,7 @@ main :-
       },
       datalog: {
         file: 'adt.dl', effort: 4, na: true,
-        note: 'With no function symbols there are no compound values to match on and no arithmetic to perform on them: you cannot write Circle(2) as a term and compute its area. What you can write is a relation — area(circle, 2, 12.57) — which means supplying the answers as data rather than computing them.'
+        note: 'This corpus omits a relational shape example. Soufflé can compute areas with arithmetic and represent structured data using records or algebraic data types; the omission is not a language impossibility.'
       }
     }
   }

@@ -1,9 +1,9 @@
 /* ---------------------------------------------------------------------------
  * languages.js — the fifteen languages, profiled along the same axes.
  *
- * Every language answers the same eleven questions:
+ * Every language answers the same twelve questions:
  *   paradigm · typing · memory · execution · errors · concurrency · tooling
- * Those eleven axes are what makes comparison possible at all. Where a
+ * Those twelve axes are what makes comparison possible at all. Where a
  * language has no meaningful answer, we say so and explain why — that absence
  * is itself a fact about the language.
  * ------------------------------------------------------------------------- */
@@ -27,7 +27,7 @@ window.LANGUAGES = [
     helloCmd: 'clang hello.s -o hello && ./hello',
     uses: 'Bootloaders, device drivers, interrupt vectors, cryptographic kernels, exploit development, compiler output inspection, teaching how the machine works.',
     strengths: ['Total control over every byte and cycle', 'Shows what all other languages compile down to', 'The calling convention and ABI become visible rather than magical'],
-    limits: ['Not portable: one dialect per CPU architecture, plus assembler syntax flavours', 'Unmanageable at scale — no types, no names, no structure', 'Even a bug as small as a wrong register makes the program silently incorrect'],
+    limits: ['Not portable: one dialect per CPU architecture, plus assembler syntax flavours', 'Low-level code needs explicit conventions for types, layout and structure; symbolic labels still provide names.', 'Even a bug as small as a wrong register makes the program silently incorrect'],
     notice: 'There is no `if` and no `while`. Control flow is a compare followed by a conditional branch to a label. Every language below is, at bottom, this.',
     lineage: 'The oldest layer. Every other language in this list ends up here (or in a bytecode VM that ends up here).',
     verified: 'native'
@@ -41,7 +41,7 @@ window.LANGUAGES = [
     family: 'systems',
     tagline: 'Portable assembly with types.',
     paradigm: 'Procedural and imperative. Functions and statements, no objects.',
-    typing: 'Static, weak and nominally named: the compiler knows types but lets you cast anything to anything.',
+    typing: 'Static types with explicit conversions and pointer casts. Conversions have constraints; a cast does not make an invalid access defined.',
     memory: 'Manual: malloc and free, raw pointers and pointer arithmetic. Undefined behaviour when you get it wrong.',
     execution: 'Ahead-of-time compiled to native code. Effectively no runtime beyond a small startup and libc.',
     errors: 'Return codes, the global errno, signals and segfaults. Error handling is convention, not syntax.',
@@ -51,8 +51,8 @@ window.LANGUAGES = [
     helloCmd: 'clang hello.c -o hello && ./hello',
     uses: 'Operating system kernels, embedded firmware, language runtimes, databases, anything that must speak the C ABI.',
     strengths: ['The smallest mental model that still scales to real systems', 'Every other language has a way to call into C', 'Undefined behaviour teaches you what the machine actually guarantees'],
-    limits: ['Manual memory management is where most security bugs in the world come from', 'No namespaces, no generics, no modules worth the name', 'String handling is a pointer and a hope'],
-    notice: 'C has no bounds checks, no string type, and no memory safety. That is not an oversight — it is precisely why it is fast, portable and still at the bottom of everything.',
+    limits: ['Unchecked pointer access and manual lifetime management can cause memory-safety bugs.', 'No namespaces, no generics, no modules worth the name', 'String handling is a pointer and a hope'],
+    notice: 'C exposes addresses and object layout with few automatic safety checks. Performance still depends on the algorithm, compiler, platform and workload.',
     lineage: 'Descends from BCPL/B; the direct ancestor of C++, Java, C#, Go, Rust and JavaScript syntax.',
     verified: 'native'
   },
@@ -66,7 +66,7 @@ window.LANGUAGES = [
     tagline: 'Zero-overhead abstraction on top of C.',
     paradigm: 'Multi-paradigm: procedural, object-oriented, generic, and functional in parts (lambdas, ranges, <algorithm>).',
     typing: 'Static and mostly strong, with escape hatches (reinterpret_cast, const_cast). Templates and concepts give compile-time polymorphism; auto gives inference.',
-    memory: 'Manual by default, disciplined by RAII: destructors, smart pointers, containers. No garbage collector required, and none used in practice.',
+    memory: 'RAII manages resources through destructors, containers and smart pointers. Raw ownership remains possible; a garbage collector is not required.',
     execution: 'Ahead-of-time compiled to native code. "You don\'t pay for what you don\'t use" — abstractions compile away.',
     errors: 'Exceptions, error codes, std::expected, and assertion failures. RAII makes cleanup automatic on every path.',
     concurrency: 'std::thread, std::atomic, mutexes, futures, coroutines (C++20), parallel algorithms.',
@@ -89,16 +89,16 @@ window.LANGUAGES = [
     family: 'systems',
     tagline: 'Systems programming with the memory bugs designed out.',
     paradigm: 'Multi-paradigm: imperative and functional, with trait-based abstraction instead of class hierarchies.',
-    typing: 'Static and strong, with full local inference, no null (Option does that job), and affine types — a value can be used at most once unless it is Copy.',
+    typing: 'Static types with local inference, ownership and borrowing. Moves transfer ownership; Copy values can be duplicated. Safe references are non-null, while raw pointers may be null.',
     memory: 'Ownership and borrowing, checked at compile time. No garbage collector, no manual free: RAII with lifetimes that the compiler verifies.',
     execution: 'Ahead-of-time compiled to native code via LLVM. No runtime except panic unwinding.',
     errors: 'Result<T, E> and Option<T>, propagated with `?`. No exceptions (panic is for bugs, not for expected failure).',
-    concurrency: 'Threads with Send / Sync enforced at compile time, channels, plus async runtimes such as Tokio. Data races are a compile error, not a runtime surprise.',
+    concurrency: 'Threads with Send / Sync bounds, channels and async runtimes. Safe Rust prevents data races when unsafe code upholds its contracts; deadlocks and logical races remain possible.',
     tooling: 'cargo (build, test, docs, bench, publish), rustc, clippy, rustfmt, rustup, crates.io',
     pkgManager: 'cargo + crates.io',
     helloCmd: 'cargo new hello && cd hello && cargo run',
     uses: 'Cloud infrastructure, CLI tools, WebAssembly, embedded, OS components (Linux kernel modules), browsers (Firefox components), and increasingly cryptography and network services.',
-    strengths: ['Data races and use-after-free are compile errors', 'Cargo is arguably the best toolchain in this list', 'Zero-cost abstractions without a garbage collector'],
+    strengths: ['Safe ownership and borrowing prevent many use-after-free errors and data races', 'Cargo is arguably the best toolchain in this list', 'Zero-cost abstractions without a garbage collector'],
     limits: ['The borrow checker front-loads design cost and has a genuine learning cliff', 'Async Rust is complex and still evolving', 'Compile times and binary size are worse than C'],
     notice: 'The novelty is not syntax, it is that the compiler tracks who owns each value and when it dies. That single rule replaces the garbage collector and the malloc/free pair at once.',
     lineage: 'C++ and ML family (pattern matching, sum types, traits ≈ type classes).',
@@ -124,7 +124,7 @@ window.LANGUAGES = [
     uses: 'Cloud infrastructure and Kubernetes, network services and CLI tools, DevOps glue, Docker, Terraform, Prometheus.',
     strengths: ['A language small enough to learn completely in a week', 'Fast compiles and first-class cross-compilation', 'Goroutines make concurrent servers trivial to write and read'],
     limits: ['The type system is deliberately unsophisticated', 'Error handling is verbose by design', 'Nil pointer panics remain possible; the GC cannot always be tuned out'],
-    notice: '`go f()` starts a scheduled function, and the runtime sits underneath your program from the first line. Go is the only language here whose concurrency primitive is a language keyword.',
+    notice: '`go f()` launches a goroutine scheduled by the runtime. Other languages also have concurrency syntax, including async/await in C#, Python, JavaScript and Rust.',
     lineage: 'C syntax, CSP concepts from Hoare via Occam/Newsqueak, garbage collection from the managed camp.',
     verified: 'reviewed'
   },
@@ -137,11 +137,11 @@ window.LANGUAGES = [
     family: 'managed',
     tagline: 'Nominal object orientation at industrial scale.',
     paradigm: 'Object-oriented at its core, now multi-paradigm: lambdas, streams, records, sealed types and pattern matching have all arrived since Java 8.',
-    typing: 'Static, nominal and sound-by-vocabulary: you implement an interface explicitly. Generics are erased at runtime; `var` infers locals.',
-    memory: 'Garbage collected (G1 by default, ZGC for low pause), everything is an object on the heap except primitives. You cannot free memory, only stop referring to it.',
+    typing: 'Static and nominal: a class explicitly implements an interface. Generic type arguments are generally erased at runtime; var infers local types.',
+    memory: 'JVM implementations manage heap memory with garbage collectors. Collector choices and defaults depend on the VM and version; escape analysis can remove some allocations.',
     execution: 'Compiled to bytecode, then JIT-compiled and profiled by the JVM (HotSpot). GraalVM can additionally compile ahead of time.',
     errors: 'Checked exceptions (declared in the signature, historically unpopular), unchecked exceptions, try-with-resources for cleanup.',
-    concurrency: 'Threads, executors, CompletableFuture, virtual threads (Java 21), and a mature memory model that finally made it safe.',
+    concurrency: 'Threads, executors, CompletableFuture and virtual threads (Java 21+). The memory model defines visibility; shared mutable state still needs synchronization.',
     tooling: 'javac, Maven / Gradle, JUnit, JFR, JConsole, IntelliJ — an enormous, conservative ecosystem',
     pkgManager: 'Maven Central',
     helloCmd: 'java Hello.java   # single-file source launch, Java 11+',
@@ -186,7 +186,7 @@ window.LANGUAGES = [
     tagline: 'Executable pseudocode with the world\'s biggest library.',
     paradigm: 'Multi-paradigm: object-oriented, imperative and functional, but with a strong cultural preference for readability over cleverness.',
     typing: 'Dynamic and duck-typed at runtime; optional type hints (PEP 484) are checked by external tools, not by the interpreter.',
-    memory: 'Reference counting with a cycle collector. Objects die when nothing points at them. No free(); no manual heap control.',
+    memory: 'CPython uses reference counting and cyclic garbage collection. Collection timing varies by implementation and build; use context managers for deterministic resource cleanup.',
     execution: 'Compiled to bytecode and interpreted by CPython. 3.13+ can add a JIT, and free-threaded builds remove the GIL, but the default model is still a bytecode interpreter.',
     errors: 'Exceptions, used as ordinary control flow — it is easier to ask forgiveness than permission (EAFP). try/except/else/finally.',
     concurrency: 'Threads (historically serialised by the GIL), asyncio for I/O-bound work, multiprocessing for CPU-bound work.',
@@ -195,7 +195,7 @@ window.LANGUAGES = [
     helloCmd: 'python3 hello.py',
     uses: 'Machine learning and data science, scripting and automation, web backends, scientific computing, education, and glue for everything else.',
     strengths: ['The largest ecosystem of any language in this list, especially for AI and data', 'Reads almost like pseudocode, which makes it a great notation for ideas', 'Easy to embed, extend and interface with C and Fortran'],
-    limits: ['Slow compared to the compiled languages; heavy lifting happens in libraries written in C', 'Dynamic typing pushes errors to runtime — a 20-line script is fine, a 200,000-line system is not', 'Packaging and dependency management have historically been painful'],
+    limits: ['Slow compared to the compiled languages; heavy lifting happens in libraries written in C', 'Dynamic typing requires tests and, where useful, static analysis to catch errors before execution.', 'Packaging and dependency management have historically been painful'],
     notice: 'Indentation *is* the block structure. Whitespace is syntax, and readability is enforced by grammar rather than by convention.',
     lineage: 'ABC, Modula-3 and C. Massive influence on the design of Julia, Mojo and modern teaching languages.',
     verified: 'native'
@@ -209,7 +209,7 @@ window.LANGUAGES = [
     family: 'dynamic',
     tagline: 'The only language the browser ever agreed on.',
     paradigm: 'Multi-paradigm: imperative, prototype-based object orientation, and functional (closures and first-class functions are everyday tools).',
-    typing: 'Dynamic, weak and coercive. `==` converts types; `===` does not. Static typing requires TypeScript, which compiles to this.',
+    typing: 'Dynamic types with coercion. == can convert operands; === does not. TypeScript and tools checking annotated JavaScript can add static analysis.',
     memory: 'Garbage collected by mark-and-sweep. Closures keep values alive and are the classical source of leaks.',
     execution: 'Interpreted and JIT-compiled (V8, SpiderMonkey, JavaScriptCore) inside a single-threaded event loop. Also runs on servers via Node, Deno or Bun.',
     errors: 'Exceptions plus Promise rejections. `undefined` and `null` are two separate absences, and neither is checked by the compiler.',
@@ -257,7 +257,7 @@ window.LANGUAGES = [
     family: 'relational',
     tagline: 'Say what you want; the engine decides how to get it.',
     paradigm: 'Declarative and set-based. You describe the result, not the procedure. Derived tables, recursive CTEs and window functions give it surprising power.',
-    typing: 'Per-column static types with implicit coercion, and NULL: a third truth value that makes `x = NULL` always unknown. Constraints enforce types and invariants at once.',
+    typing: 'Types and coercion depend on the engine. SQLite normally associates types with values and affinities with columns; STRICT tables add constraints. NULL marks missing data and comparisons can yield UNKNOWN.',
     memory: 'Nothing is yours. You declare tables, indexes and constraints; the engine owns pages, caches and the buffer pool.',
     execution: 'A planner rewrites your query into a relational algebra tree, the optimiser picks join orders and access paths, and the executor runs it set-at-a-time. Order is undefined without ORDER BY.',
     errors: 'Compile-time errors for bad schema, runtime errors for constraint violations, SQLSTATE codes, and RAISE inside stored procedures. A query returning no rows is not an error.',
@@ -292,7 +292,7 @@ window.LANGUAGES = [
     uses: 'Compilers (GHC is written in itself), financial systems, formal verification, blockchain (Cardano), research languages, and teaching type theory.',
     strengths: ['Effects are visible in the type: `f :: Int -> IO Int` cannot silently do I/O', 'Composability that imperative languages rarely reach — you build tiny transformations and combine them', 'The type system catches classes of bugs that other languages cannot express'],
     limits: ['Lazy evaluation makes memory and performance reasoning non-obvious', 'A small community and a steep learning curve around monads and type-level machinery', 'Compiler error messages can be long, though they have improved'],
-    notice: 'This is the only language here where `x = x + 1` is impossible — values do not change. Everything you would do by mutation becomes a new value derived from the old one.',
+    notice: 'Bindings are immutable. Writing x = x + 1 is legal recursive syntax, but demanding that value does not compute an increment; it fails to produce a value. Mutation requires an explicit effectful abstraction.',
     lineage: 'Miranda and ML, with lazy evaluation theory and type classes. Influenced Rust traits, C# LINQ, Swift, and every mainstream language that added generics later.',
     verified: 'reviewed'
   },
@@ -329,7 +329,7 @@ window.LANGUAGES = [
     family: 'logic',
     tagline: 'A program as a set of facts and inference rules.',
     paradigm: 'Logic and declarative: Horn clauses. A program is a database of rules; computation is proof search. It is also relational — predicates can run "backwards".',
-    typing: 'Untyped by default: everything is a term. Types exist in some dialects and are usually checked at runtime, not compile time.',
+    typing: 'Runtime terms have types, including atoms, numbers and compound terms. SWI-Prolog has no mandatory static type checker; arithmetic and other predicates impose input requirements.',
     memory: 'Managed by the inference engine: a trail for backtracking, choice points and a stack per invocation. You do not allocate.',
     execution: 'SLD resolution with unification and depth-first backtracking, executed by a Warren Abstract Machine or a compiled variant (SWI, SICStus, GNU Prolog).',
     errors: 'Failure is a normal outcome: a goal that cannot be proved simply fails and the engine backtracks. Errors are separate, and negation is "negation as failure".',
@@ -349,22 +349,22 @@ window.LANGUAGES = [
     name: 'Datalog',
     year: '1977–1978 (from Prolog; deductive databases)',
     creator: 'Chandra, Harel, Maier, Warren and others; the name comes from "data + logic"',
-    origin: 'Prolog, restricted until it always terminates',
+    origin: 'Deductive databases and the function-free relational fragment of logic programming',
     family: 'logic',
-    tagline: 'Recursive queries you can guarantee will finish.',
+    tagline: 'Recursive relations, evaluated to a fixpoint.',
     paradigm: 'Declarative and relational logic: function-free Horn clauses evaluated bottom-up to a fixpoint. There is no control flow and no evaluation order.',
     typing: 'Depends on the implementation. Soufflé has a real type system with static checks and will refuse a program that cannot be stratified.',
     memory: 'Not applicable: relations live in indexed storage that the engine builds and reuses. Soufflé compiles to C++ and picks data structures per relation.',
-    execution: 'Semi-naive bottom-up evaluation to a fixpoint, or compiled to C++ / incremental dataflow. Rules are applied until nothing new can be derived — termination is guaranteed because there are no function symbols.',
+    execution: 'Rules are evaluated to a fixpoint, interpreted or compiled. Classical finite-domain Datalog terminates; Soufflé arithmetic extensions can express non-terminating programs, so bounds matter.',
     errors: 'Mostly compile-time: type mismatches, unbound variables and unstratifiable negation are rejected before anything runs. A rule that derives nothing is silent.',
     concurrency: 'Not applicable — the engine may parallelise internally (Soufflé does), but the language has no concurrency constructs.',
-    tooling: 'Soufflé (the reference compiler), differential-datalog (Rust), Datafrog (Rust, used inside rustc), logicblox, pyDatalog, bddbddb',
+    tooling: 'Soufflé, Datafrog and other relational engines; syntax, tooling and capabilities differ by implementation.',
     pkgManager: 'None; you compile with souffle or embed the library',
     helloCmd: 'souffle hello.dl',
     uses: 'Static analysis (points-to analysis, the polonius borrow checker in Rust, DOOP for Java), network and security analysis, incremental computation, knowledge graphs, policy engines.',
-    strengths: ['Recursive queries that are guaranteed to terminate', 'The whole program is a set of declarative rules — no loops, no state, no order', 'Engines can parallelise and incrementally maintain results for you'],
-    limits: ['Not a general-purpose language: no functions, no I/O, no data structures beyond relations', 'Writing large programs is unusual; you usually generate Datalog from something else', 'Multiple syntaxes, and no single dominant implementation'],
-    notice: 'This is the smallest language in the list and the most extreme: no loops, no assignment, no order, no functions. Just relations and rules about them, evaluated until nothing new appears.',
+    strengths: ['Classical finite-domain rules give a terminating model for recursive queries', 'The whole program is a set of declarative rules — no loops, no state, no order', 'Engines can parallelise and incrementally maintain results for you'],
+    limits: ['The relational core differs from general-purpose control flow; Soufflé extends it with arithmetic, records and functors.', 'Writing large programs is unusual; you usually generate Datalog from something else', 'Multiple syntaxes, and no single dominant implementation'],
+    notice: 'Separate the relational core from the dialect: this app uses Soufflé, whose extensions go beyond classical function-free Datalog.',
     lineage: 'Prolog minus function symbols, plus bottom-up evaluation and set semantics. Cousin of SQL: recursive CTEs in SQL are Datalog in disguise.',
     verified: 'reviewed'
   }
@@ -385,7 +385,7 @@ window.FAMILIES = {
   logic:       { label: 'Logic',          color: '#b07d2a', blurb: 'Facts and rules; computation as proof search or fixpoint.' }
 };
 
-/* The eleven axes every profile answers — shown as a comparison table. */
+/* The twelve axes every profile answers — shown as a comparison table. */
 window.AXES = [
   { key: 'paradigm',    label: 'Paradigm',            q: 'What kind of thing is a program?' },
   { key: 'typing',      label: 'Typing',              q: 'When and how are types checked?' },

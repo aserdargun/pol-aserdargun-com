@@ -1,6 +1,8 @@
 # Coverage Assessment: 10 Languages as a Computer Science Vehicle Set
 
-**The set:** Assembly · C · C++ · Bash · Rust · Go · Java · C# · Python · JavaScript
+**Scope update — 21 September 2026:** This is an editorial assessment of the original ten-language set, not a measured curriculum benchmark. POL now includes **15 languages**: the original ten plus SQL, Haskell, OCaml, Prolog and Datalog. The additions broaden the examples; they do not make the app a complete CS course. Lisp macros, actor-oriented languages, array languages, hardware description and proof assistants remain outside the runnable corpus. See [POL](index.html#/about) for its portfolio position and verification limits.
+
+**The original set:** Assembly · C · C++ · Bash · Rust · Go · Java · C# · Python · JavaScript
 
 **Question:** how well does this cover computer science?
 
@@ -10,7 +12,7 @@
 
 **As a systems-and-industry set, this is close to optimal. As a computer science set, it has three structural blind spots.**
 
-Scored across 25 areas of a CS curriculum:
+Editorial ratings across 25 selected areas; these are judgments about possible teaching vehicles, not tested learning outcomes:
 
 | Rating | Areas | Count |
 | --- | --- | --- |
@@ -21,15 +23,15 @@ Scored across 25 areas of a CS curriculum:
 
 The weaknesses are **not random** — they all cluster in the same place. You have assembled an excellent *engineering* set and an incomplete *paradigm* set.
 
-The single most important thing to understand about this list: **it is optimized for employability, not for conceptual orthogonality.** Ten languages, but roughly six distinct mental models and only two paradigm families covered in full.
+The single most important thing to understand about this list: **it is optimized for employability, not for conceptual orthogonality.** Several languages overlap substantially, while other approaches receive no dedicated example.
 
 ---
 
 ## 2. What this set does genuinely well
 
-### 2.1 The memory-management spectrum is complete
+### 2.1 The set spans several memory-management strategies
 
-This is the set's best and most under-appreciated feature. You can study the *entire* spectrum of memory models using nothing but these ten languages:
+This is the set's best and most under-appreciated feature. You can study a broad spectrum of memory models using nothing but these ten languages:
 
 | Model | Language | What it teaches |
 | --- | --- | --- |
@@ -38,12 +40,12 @@ This is the set's best and most under-appreciated feature. You can study the *en
 | Manual with discipline | **C++** | RAII, destructors, move semantics, smart pointers, the zero-overhead principle |
 | Compiler-enforced ownership | **Rust** | Affine types, borrow checking, lifetimes, `Send`/`Sync`, safety without GC |
 | Tracing GC | **Go, Java, C#** | Generational collection, stop-the-world vs concurrent, allocation pressure |
-| Reference counting | **Python** | Cycles, `__del__`, why refcounting leaks cycles |
+| Reference counting plus cyclic GC | **CPython** | Reference lifetimes, cycles and implementation-specific collection timing |
 | Managed with hidden allocation | **JavaScript** | GC pauses, hidden classes, why closures keep memory alive |
 
 Almost nobody who learns to program gets this range. It means you can answer "what does the runtime actually do with my data?" for every level from silicon to heap. **Keep this. Do not trim it.**
 
-### 2.2 The implementation-strategy spectrum is also complete
+### 2.2 The set spans common implementation strategies
 
 | Strategy | Language |
 | --- | --- |
@@ -106,13 +108,13 @@ Ten languages, but some of them teach the same lesson.
 
 **Four languages on the same axis.** Assembly → C → C++ → Rust is four points on the systems spectrum. That is a lot of your budget spent on one axis. Assembly + C + Rust is a cleaner trio than all four; C++ earns its place mainly for employability and for templates/multiple-inheritance/UB-versus-defined-behaviour, which Rust cannot show you.
 
-**Bash is not really a CS language.** It is a domain-specific shell with famously bad semantics (everything is a string, no integers, aggressive word splitting). Its value is real but narrow: the process model and tooling fluency. Treat it as a *tool*, not as a language you study.
+**Bash emphasizes process composition.** It has arithmetic expressions, integer attributes and arrays, but expansion, quoting and word splitting require care. It is a useful teaching vehicle for processes, pipes and exit status; it does not replace a general data-structure or type-system course.
 
 ### The honest count
 
 | Languages | Distinct mental models | Paradigm families fully covered |
 | --- | --- | --- |
-| **10** | **~6** — machine, manual systems, abstract systems, concurrent systems, managed OO, dynamic scripting / browser / shell | **2** — imperative, object-oriented |
+| **10** | Overlapping examples of machine, systems, managed, dynamic and shell programming | Editorial grouping, not an exhaustive or measured coverage count |
 
 ---
 
@@ -168,7 +170,7 @@ This also teaches parsing, ASTs, and evaluation from the inside, which is exactl
 | **Formal methods & type theory** | Coq/Rocq, Lean 4, or Dafny | Curry–Howard correspondence: types *are* propositions, programs *are* proofs. Nothing in the set has a type system expressive enough to say this. Dafny is the gentlest entry — verification feels like annotated code. |
 | **Actor model / fault tolerance** | Erlang or Elixir | Go's goroutines share memory and have no supervision. Erlang gives you isolated processes, "let it crash," supervision trees, and distribution as the primitive. The most different *runtime* philosophy available. |
 | **Hardware design** | Verilog/VHDL, or Chisel/Amaranth | Everything in your set is software. HDLs make you think about timing, real parallelism, and hardware concurrency. If you want architecture to go past the textbook, this is required. |
-| **Numerical computing** | Fortran or Julia | Python's NumPy *hides* floating-point error, conditioning, and cache behaviour. Fortran is still the honest language for HPC and is 11th on TIOBE for a reason. Julia is the modern alternative. Only add if scientific computing matters to you. |
+| **Numerical computing** | Fortran or Julia | NumPy, Fortran and Julia can all teach numerical methods. Floating-point error, conditioning and memory layout need explicit exercises regardless of language; popularity does not establish numerical correctness. |
 | **Array / data-parallel** | APL, J, or CUDA | A genuinely different computational model — operations over whole arrays rather than elements. |
 | **Pure object orientation** | Smalltalk (Pharo), Newspeak | In Smalltalk, control flow itself is message sends (`ifTrue:ifFalse:`). That is the purest possible statement of the OO idea, and Java/C#/C++ — which have `if` and `while` as primitive statements — literally cannot show it to you. |
 | **Stack-based / concatenative** | Forth, PostScript | How expressions are actually evaluated, seen from the other direction. |
@@ -193,11 +195,11 @@ Programming language theory · type systems · functional programming as a disci
 | **2** | **Haskell** *or* **OCaml** | Purity, inference, laziness, TCO, monads, ADTs, type classes |
 | **3** | **Prolog** *or* **Datalog** | Logic programming, unification, backtracking, declarative search |
 
-**10 → 13 covers essentially the whole paradigm space** (imperative, object-oriented, functional, logic, relational, concurrent, systems, scripting). That is, arguably, a complete CS language foundation.
+**10 → 13 broadens the paradigm coverage**; choosing both functional and both logic languages gives the 15-language POL corpus. This still omits important approaches, including homoiconic macros, actors, array programming and formal verification.
 
 ### If you must trim instead of add
 
-The conceptual core is **8**: Assembly (or C — pick one as your machine model), C, Rust *or* C++, Go, Java *or* C#, Python, JavaScript, Bash.
+The conceptual core is **8**: Assembly, C, Rust *or* C++, Go, Java *or* C#, Python, JavaScript, Bash.
 
 The two pairs you can safely collapse are **(C++ | Rust)** and **(Java | C#)**. Learn one of each properly; add the other later for job reasons, not for learning reasons.
 
@@ -225,7 +227,7 @@ The two pairs you can safely collapse are **(C++ | Rust)** and **(Java | C#)**. 
 
 Worth saying plainly: **computer science is not a set of languages.** Automata and computability, complexity theory, algorithms and proof technique, probability, linear algebra, discrete maths, information theory, and type theory are mathematics. No language — in this set or any other — substitutes for them, and someone fluent in all thirteen languages above who cannot reason about asymptotics or prove an invariant is not educated in computer science.
 
-What languages *do* give you is **concreteness**: a place to watch the abstract ideas run. On that measure, this set is strong — it lets you see the machine (Assembly, C), the abstraction layer above it (C++, Rust), the managed layer above that (Go, Java, C#), the dynamic layer (Python, JavaScript), and the systems interface (Bash). If you add SQL, one functional language, and one logic language, you will have seen every major *way of thinking* that programming has produced, which is the real goal.
+What languages *do* give you is **concreteness**: a place to watch the abstract ideas run. On that measure, this set is strong — it lets you see the machine (Assembly, C), the abstraction layer above it (C++, Rust), the managed layer above that (Go, Java, C#), the dynamic layer (Python, JavaScript), and the systems interface (Bash). If you add SQL, one functional language, and one logic language, you will have concrete examples of several additional paradigms, with important gaps still remaining.
 
 ---
 
@@ -233,12 +235,12 @@ What languages *do* give you is **concreteness**: a place to watch the abstract 
 
 | Question | Answer |
 | --- | --- |
-| Is this a good set? | **Yes — better than most CS graduates actually hold.** |
+| Is this a good set? | **Yes, for the stated systems and comparison goals.** |
 | What is it optimized for? | Employability and systems engineering, not paradigm breadth. |
 | What is missing? | Declarative/relational, true functional, logic, homoiconic metaprogramming. |
 | Biggest redundancy? | Java ↔ C#, and C++ ↔ Rust to a lesser degree. |
 | Fewest additions for most gain? | **SQL, then Haskell or OCaml, then Prolog.** |
 | Should you drop anything? | Not for learning. Only Bash is arguably not worth *studying* as a language, and it still earns its place as a tool. |
-| Coverage score | **~12 of 25 CS areas strong; conceptually ~2 of 9 paradigm families in full.** With the three additions: **~8 of 9.** |
+| Coverage score | Editorial classification only: 12 of the 25 selected areas were rated strong for the original set. No measured coverage percentage or outcome score is claimed. |
 
-*Compiled 17 September 2026. Companion to [programming-languages.md](programming-languages.md).*
+*Original assessment compiled 17 September 2026; scope and technical wording revised 21 September 2026. Companion to [programming-languages.md](programming-languages.md).*

@@ -10,7 +10,7 @@ window.RECIPES_ERRORS = [
     title: 'Error handling',
     prompt: 'Write a division that reports failure instead of crashing when the divisor is zero. Compute divide(10,2) and divide(10,0), and print: ok=5 err=division by zero',
     why: 'The difference is not syntactic. It decides whether failure travels in the type, in the control flow, in a return value, in a global flag, or in the operating system — and therefore whether it is possible to ignore it by accident.',
-    takeaway: 'Four strategies are on display. *Values*: Go, Rust, Haskell, OCaml and C put failure in the result the caller must look at — Rust and Haskell make ignoring it impossible, Go and C make it merely impolite. *Control flow*: Java, C#, Python, JavaScript and C++ throw, so a failure can surface far from the call that did not expect it. *Status codes*: Assembly returns a flag in a register and Bash returns an exit status; both are the operating system\'s convention rather than the language\'s. *Failure as an ordinary outcome*: Prolog simply fails and the engine backtracks looking for another answer. SQL is the most different of all — dividing by zero yields NULL rather than an error, so the failure is absorbed into the data model and handled with COALESCE. Datalog has no errors at all: a rule whose body cannot be satisfied derives nothing, which is the purest possible statement of "no such answer".',
+    takeaway: 'The examples report division failure using result values, exceptions, status codes or relations. Rust warns about unused Result values; a type does not make ignoring failure impossible. SQLite returns NULL for division by zero, but other SQL engines can raise errors. Logic programs can model unsuccessful cases as missing answers or explicit error facts, while their runtimes can still report execution errors.',
     snippets: {
       asm: {
         file: 'errors.s', effort: 5, expect: 'ok=5 err=division by zero',
@@ -122,7 +122,7 @@ int main() {
     std::cout << "ok=" << ok << " err=" << err << std::endl;
 }`,
         expect: 'ok=5 err=division by zero',
-        note: 'C++ exceptions are zero-cost until thrown, and RAII guarantees destructors run on the way out. The price is that a signature says nothing about what it may throw — which is why C++23 added std::expected for the value-based style.'
+        note: 'Exceptions propagate through stack unwinding and ordinary RAII cleanup. Runtime and code-size costs depend on the implementation; std::expected (C++23) offers a value-based alternative.'
       },
       rust: {
         file: 'errors.rs', effort: 1, expect: 'ok=5 err=division by zero',
@@ -307,7 +307,7 @@ SELECT 'ok=' || (SELECT CAST(a / b AS TEXT) FROM attempts WHERE b = 2)
                            'division by zero')
     AS result;`,
         expect: 'ok=5 err=division by zero',
-        note: 'The deepest difference in the table: failure is not a control-flow event but a value — one of three truth values — propagating silently through every expression until you test for it. Constraint violations are the exception, and those do raise.'
+        note: 'In SQLite, division by zero produces NULL, which COALESCE can replace. NULL is a missing-data marker; comparisons involving it may produce UNKNOWN. Other SQL engines can raise an error instead.'
       },
       haskell: {
         file: 'errors.hs', effort: 1, expect: 'ok=5 err=division by zero',
@@ -356,13 +356,13 @@ divide(_, 0, 'division by zero').
 main :-
     divide(10, 2, Ok),
     divide(10, 0, Err),
-    format("ok=~w err=~w~n", [Ok, Err]).`,
+    format("ok=~g err=~w~n", [Ok, Err]).`,
         expect: 'ok=5 err=division by zero',
         note: 'There is no exception here: the second clause also *describes* the failing case, and the cut stops the engine looking for further options. Prolog has exceptions too, but "no proof found" is the paradigm\'s native answer to a bad question.'
       },
       datalog: {
         file: 'errors.dl', effort: 3, na: true,
-        note: 'Datalog has no errors and no exceptions: a rule whose body cannot be satisfied simply derives nothing, and the program continues. An unusable input is a fact that never appears in the output relation — you cannot fail, you can only omit. That is the same silence that makes SQL NULLs dangerous, taken to its logical conclusion.'
+        note: 'A Datalog error-handling example is omitted here. Success and failure could be encoded as explicit relations. An unsatisfied body derives no tuple, but type errors, invalid operations and resource failures can still occur in the engine. An empty result is not a general error-handling strategy.'
       }
     }
   }

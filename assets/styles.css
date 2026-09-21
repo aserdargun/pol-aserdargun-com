@@ -461,3 +461,21 @@ table.axes-table th:first-child { width: 9rem; color: var(--fg-muted); font-weig
   .grid { grid-template-columns: 1fr; }
   main { padding: 1rem .9rem 3rem; }
 }
+
+/* Keep long educational content contained on narrow screens. */
+main, .panel, .two > *, .three > *, .axis-grid > * { min-width: 0; }
+.two, .axis-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.three { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.lang-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 215px), 1fr)); }
+p, li, .axis, .position, .lang-card { overflow-wrap: anywhere; }
+.matrix a { display: block; color: inherit; padding: .25rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.skip-link { position: fixed; top: -5rem; left: 1rem; z-index: 100; background: var(--bg); padding: .5rem 1rem; }
+.skip-link:focus { top: .5rem; }
+@media (min-width: 721px) and (max-width: 1250px) { header.top { flex-wrap: wrap; } }
+@media (max-width: 720px) {
+  header.top { position: static; padding-inline: .9rem; }
+  .brand { white-space: normal; }
+  .compare-row { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); }
+  .search input { min-width: 0; }
+}
