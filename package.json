@@ -1,0 +1,16 @@
+{
+  "name": "pol-aserdargun-com",
+  "private": true,
+  "version": "0.1.0",
+  "description": "An app that shows the fundamentals of programming languages by doing the same thirteen tasks in fifteen languages.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node tools/serve.mjs",
+    "test": "node --test tools/site.test.mjs",
+    "check": "node tools/check-site.mjs && node --test tools/site.test.mjs",
+    "verify": "node tools/verify.mjs --portable --no-write",
+    "verify:ui": "node tools/check-ui.mjs"
+  }
+}
