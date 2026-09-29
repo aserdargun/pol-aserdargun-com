@@ -76,11 +76,10 @@
     return `<span class="badge" title="Hand-reviewed. No passing execution is recorded by the configured verifier for this snippet.">reviewed</span>`;
   }
 
-  function snippetCard(task, lang, opts) {
+  function snippetCard(task, lang, _opts) {
     const snip = task.snippets[lang];
     const key = task.id + ':' + lang;
     const l = BY_ID[lang];
-    const open = opts && opts.open;
     const head = `<div class="card-head">
       ${chip(lang)}
       ${l ? `<span class="meta">${esc(String(l.year))}</span>` : ''}
@@ -308,7 +307,7 @@
       </div>`;
   }
 
-  function viewLanguage(l, filter) {
+  function viewLanguage(l, _filter) {
     const axes = AXES.map((axis) => {
       let value = l[axis.key];
       if (Array.isArray(value)) value = value.map((v) => `<li>${esc(v)}</li>`).join('');
@@ -522,7 +521,7 @@
   function render() {
     const { parts, params } = parseHash();
     const view = parts[0] || '';
-    let html = '';
+    let html;
 
     if (!view) html = viewOverview();
     else if (view === 'tasks') html = viewTasks();
@@ -563,7 +562,7 @@
     try {
       await navigator.clipboard.writeText(text);
       return true;
-    } catch (e) {
+    } catch {
       const area = document.createElement('textarea');
       area.value = text;
       document.body.appendChild(area);
@@ -633,7 +632,7 @@
     if (act === 'theme') {
       const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
       document.documentElement.dataset.theme = next;
-      try { localStorage.setItem('pl-theme', next); } catch {}
+      try { localStorage.setItem('pl-theme', next); } catch { /* storage is optional */ }
       return;
     }
 
@@ -680,6 +679,6 @@
   try {
     const theme = localStorage.getItem('pl-theme');
     if (['dark', 'light'].includes(theme)) document.documentElement.dataset.theme = theme;
-  } catch {}
+  } catch { /* the run already reported the failure */ }
   render();
 })();

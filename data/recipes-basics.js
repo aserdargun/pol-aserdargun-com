@@ -1090,7 +1090,7 @@ clamp() {                             # clamp x [lo] [hi]
 
 printf 'add=%s square=%s clamp=%s\\n' "$(add 3 4)" "$(square 3)" "$(clamp 150)"`,
         expect: 'add=7 square=9 clamp=100',
-        note: 'A shell function returns text through stdout and a status through $?. "Return a value" means print it and capture it with $( ), and default arguments are written as \${2:-0}.'
+        note: 'A shell function returns text through stdout and a status through $?. "Return a value" means print it and capture it with $( ), and default arguments are written as ${2:-0}.'
       },
       sql: {
         file: 'functions.sql', effort: 4,

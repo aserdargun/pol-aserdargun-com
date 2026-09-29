@@ -229,7 +229,7 @@ if (!fs.existsSync(CHROME)) {
     const flags = ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
       '--disable-background-networking', `--user-data-dir=${profile}`, '--virtual-time-budget=4000'];
     const args = [...flags, '--dump-dom', url];
-    let dom = '';
+    let dom;
     try {
       dom = execFileSync(CHROME, args, { stdio: 'pipe', timeout: 20000, killSignal: 'SIGKILL' }).toString();
     } catch (e) {

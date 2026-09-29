@@ -9,8 +9,14 @@
   "scripts": {
     "dev": "node tools/serve.mjs",
     "test": "node --test tools/site.test.mjs",
-    "check": "node tools/check-site.mjs && node --test tools/site.test.mjs",
+    "check": "npm run lint && node tools/check-site.mjs && node --test tools/site.test.mjs",
+    "lint": "eslint .",
     "verify": "node tools/verify.mjs --portable --no-write",
     "verify:ui": "node tools/check-ui.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0"
   }
 }

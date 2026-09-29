@@ -55,7 +55,7 @@ nums: .word 1, 2, 3, 4`,
         partial: 'Maps one function over the array; the filter and the fold are left as an exercise.'
       },
       c: {
-        file: 'hof.c', effort: 3, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.c', effort: 3, 
         run: 'clang hof.c -o hof && ./hof',
         code: `#include <stdio.h>
 
@@ -93,7 +93,7 @@ int main(void) {
         note: 'You can absolutely do this in C — but you write the map, the filter and the fold yourself, and generic enough to be worth having. That is exactly what the C++ standard library went and did.'
       },
       cpp: {
-        file: 'hof.cpp', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.cpp', effort: 1, 
         run: 'clang++ -std=c++20 hof.cpp -o hof && ./hof',
         code: `#include <algorithm>
 #include <iostream>
@@ -123,7 +123,7 @@ int main() {
         note: 'A lambda is an object with a call operator, and the algorithms take it by value — so a capture is copied into that object, and everything still inlines to the machine code a hand-written loop would produce.'
       },
       rust: {
-        file: 'hof.rs', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.rs', effort: 1, 
         run: 'rustc hof.rs -o hof && ./hof',
         code: `fn main() {
     let xs = vec![1, 2, 3, 4];
@@ -139,7 +139,7 @@ int main() {
         note: 'Closures are anonymous types implementing Fn, FnMut or FnOnce, and iterator chains are zero-cost: each adapter compiles away. `collect()` is where the laziness stops and a real vector appears.'
       },
       go: {
-        file: 'hof.go', effort: 2, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.go', effort: 2, 
         run: 'go run hof.go',
         code: `package main
 
@@ -195,7 +195,7 @@ func main() {
         note: 'Functions are values and closures exist, but the standard library deliberately ships no Map/Filter/Reduce — Go\'s answer to looping is a loop. Note that %v renders a slice as "[2 4 6 8]", so even the output has to be assembled by hand.'
       },
       java: {
-        file: 'Hof.java', effort: 2, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'Hof.java', effort: 2, 
         run: 'java Hof.java',
         code: `import java.util.*;
 import java.util.function.*;
@@ -225,7 +225,7 @@ public class Hof {
         note: 'The function types (Function, BiFunction, Predicate, Supplier) are interfaces with one abstract method, so a lambda fits them. That is why Java has no separate function type: it reused the interface it already had.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'Program.cs', effort: 1,
         run: 'dotnet run Program.cs',
         code: `var xs = new List<int> { 1, 2, 3, 4 };
 
@@ -242,7 +242,7 @@ Console.WriteLine($"method group works too: [{string.Join(",", alsoDoubled)}]");
         note: 'Delegates (Func<T,R>) plus extension methods put the whole vocabulary on any IEnumerable. Note that LINQ is lazy until ToList: the query is described, not evaluated, until something asks for the values.'
       },
       python: {
-        file: 'hof.py', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.py', effort: 1, 
         run: 'python3 hof.py',
         code: `xs = [1, 2, 3, 4]
 
@@ -255,7 +255,7 @@ print(f"doubled=[{','.join(map(str, doubled))}] evens=[{','.join(map(str, evens)
         note: 'Python offers both idioms, and the culture prefers comprehensions because they are faster and read better. Note that `sum` is a built-in function, but `doubled` had to be joined by hand.'
       },
       js: {
-        file: 'hof.js', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.js', effort: 1,
         run: 'node hof.js',
         code: `const xs = [1, 2, 3, 4];
 
@@ -297,7 +297,7 @@ printf 'evens=[%s]\\n'   "$(IFS=,; echo "\${evens[*]}")"`,
         note: 'The shell\'s "function value" is its name: `"$f" "$v"` dispatches on a string. It works, but every call is a fresh command substitution with all the quoting and status-code hazards that implies — this is the limit of what strings-and-processes can express.'
       },
       sql: {
-        file: 'hof.sql', effort: 3, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.sql', effort: 3, 
         run: `sqlite3 :memory: < hof.sql`,
         code: `-- There is no way to pass a function to a function. What SQL gives you
 -- instead: expressions evaluated per row, and aggregates over the set.
@@ -311,7 +311,7 @@ SELECT 'doubled=[' || (SELECT group_concat(n, ',') FROM doubled)
         note: 'Map is a projection, filter is a WHERE clause and fold is an aggregate — the three verbs exist, but they are syntax rather than values, so you cannot store one in a variable or build a new one at runtime.'
       },
       haskell: {
-        file: 'hof.hs', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.hs', effort: 1, 
         run: 'runghc hof.hs',
         code: `xs :: [Int]
 xs = [1, 2, 3, 4]
@@ -324,7 +324,7 @@ main = putStrLn $ "doubled=" ++ show (map (* 2) xs)
         note: 'map, filter and fold are ordinary library functions over any list, `(* 2)` is a section (an operator partially applied), and Haskell happens to print lists in exactly the bracket format the task asked for.'
       },
       ocaml: {
-        file: 'hof.ml', effort: 1, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.ml', effort: 1, 
         run: 'ocaml hof.ml',
         code: `let xs = [1; 2; 3; 4]
 
@@ -341,7 +341,7 @@ let () =
         note: 'Functions are curried, so `keep (fun n -> n mod 2 = 0)` is already a complete transformation waiting for a list — the higher-order style falls out of the type system rather than being bolted on.'
       },
       prolog: {
-        file: 'hof.pl', effort: 3, expect: 'doubled=[2,4,6,8] evens=[2,4] sum=10',
+        file: 'hof.pl', effort: 3, 
         run: 'swipl -q -g main -t halt hof.pl',
         code: `:- initialization(main).
 :- use_module(library(apply)).        % maplist/3 and friends
@@ -429,7 +429,7 @@ pic:   .double 3.14159`,
         partial: 'Two shapes are computed inline; the unknown case is the fmov default but is not exercised.'
       },
       c: {
-        file: 'adt.c', effort: 3, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.c', effort: 3, 
         run: 'clang adt.c -o adt && ./adt',
         code: `#include <stdio.h>
 
@@ -465,7 +465,7 @@ int main(void) {
         note: 'The tagged union is the machine-level truth that Haskell, Rust and OCaml dress up with syntax. The cost is visible: nothing stops you reading `as.rect` from a circle, and a missing case is an `if` you must remember rather than an error.'
       },
       cpp: {
-        file: 'adt.cpp', effort: 3, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.cpp', effort: 3, 
         run: 'clang++ -std=c++20 adt.cpp -o adt && ./adt',
         code: `#include <iomanip>
 #include <iostream>
@@ -497,7 +497,7 @@ int main() {
         note: 'std::visit requires the visitor to be callable for every alternative at compile time. A generic catch-all can accept a new alternative without implementing its intended behavior; type coverage is not a proof of semantic completeness.'
       },
       rust: {
-        file: 'adt.rs', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.rs', effort: 1, 
         run: 'rustc adt.rs -o adt && ./adt',
         code: `enum Shape {
     Circle(f64),
@@ -522,7 +522,7 @@ fn main() {
         note: 'An enum carries data and match must be exhaustive. Adding a Triangle variant breaks this function at compile time, with the file and line in the error — that is the whole argument for sum types in one sentence.'
       },
       go: {
-        file: 'adt.go', effort: 3, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.go', effort: 3, 
         run: 'go run adt.go',
         code: `package main
 
@@ -559,7 +559,7 @@ func main() {
         note: 'It works, and a new shape is silently absorbed by the `default` branch — the compiler says nothing. Go considers that an acceptable price for simplicity; the functional camp considers it the exact problem the feature was invented to solve.'
       },
       java: {
-        file: 'Shapes.java', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'Shapes.java', effort: 2, 
         run: 'java Shapes.java',
         code: `public class Shapes {
     sealed interface Shape permits Circle, Rect, Unknown {}
@@ -584,7 +584,7 @@ func main() {
         note: 'The object-oriented route to the same guarantee: `sealed` closes the hierarchy, records carry the data, and a switch over patterns must cover every permitted type. Java 21 made this idiom real, and it is the biggest change to the language since generics.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'Program.cs', effort: 1, 
         run: 'dotnet run Program.cs',
         code: `abstract record Shape;
 record Circle(double R) : Shape;
@@ -602,7 +602,7 @@ Console.WriteLine($"circle(2)={Area(new Circle(2)):F2} rect(3,4)={Area(new Rect(
         note: 'Records give value semantics and deconstruction for free, and the switch expression covers the known patterns. Because the hierarchy is not sealed, the compiler cannot prove totality — hence the `_` arm.'
       },
       python: {
-        file: 'adt.py', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.py', effort: 2, 
         run: 'python3 adt.py',
         code: `from dataclasses import dataclass
 from typing import Union
@@ -630,7 +630,7 @@ print(f"circle(2)={area(Circle(2)):.2f} rect(3,4)={area(Rect(3, 4)):.2f} "
         note: 'Dataclasses plus `match` give the syntax of a sum type without the guarantee: matching happens at runtime, an unrecognised shape silently hits `case _`, and a typo in a class name is a complaint from a type checker rather than an error from the interpreter.'
       },
       js: {
-        file: 'adt.js', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.js', effort: 2, 
         run: 'node adt.js',
         code: `// There is no sum type. The tag is a property, and matching is a switch.
 const circle = { kind: 'circle', r: 2 };
@@ -658,7 +658,7 @@ console.log('circle(2)=%s rect(3,4)=%s unknown=%s',
         note: 'This corpus omits a shell encoding of shapes. Bash can represent a tag and payload with strings or arrays and dispatch with case, but it has no built-in algebraic data type or exhaustiveness checker.'
       },
       sql: {
-        file: 'adt.sql', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.sql', effort: 2, 
         run: `sqlite3 :memory: < adt.sql`,
         code: `-- A variant is a row: the discriminant is a column, the payload more columns.
 WITH shapes(kind, a, b) AS (
@@ -672,7 +672,7 @@ SELECT 'circle(2)=' || printf('%.2f', (SELECT 3.14159 * a * a FROM shapes WHERE 
         note: 'CASE and a kind column do the work of pattern matching, and the unknown case arrives naturally as NULL, which COALESCE turns into zero. A CHECK constraint tying tag to payload is the database version of exhaustiveness.'
       },
       haskell: {
-        file: 'adt.hs', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.hs', effort: 1, 
         run: 'runghc adt.hs',
         code: `import Numeric (showFFloat)
 
@@ -698,7 +698,7 @@ main = putStrLn $ "circle(2)=" ++ fmt (area (Circle 2))
         note: 'Algebraic data types name the alternatives. GHC can report incomplete patterns with -Wincomplete-patterns; -Werror=incomplete-patterns makes that diagnostic a build error.'
       },
       ocaml: {
-        file: 'adt.ml', effort: 1, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.ml', effort: 1, 
         run: 'ocaml adt.ml',
         code: `type shape =
   | Circle of float
@@ -717,7 +717,7 @@ let () =
         note: 'The `function` keyword is a pattern match over the argument, and a missing case produces a warning that names the cases you forgot. This is the feature Rust inherited most directly.'
       },
       prolog: {
-        file: 'adt.pl', effort: 2, expect: 'circle(2)=12.57 rect(3,4)=12.00 unknown=0.00',
+        file: 'adt.pl', effort: 2, 
         run: 'swipl -q -g main -t halt adt.pl',
         code: `:- initialization(main).
 

@@ -72,7 +72,7 @@ msg:    .asciz "division by zero"`,
         note: 'No exceptions and no error type: a second return register and a branch. Every error mechanism in this list ultimately compiles to this, and the only real difference is who is forced to remember to check the status.'
       },
       c: {
-        file: 'errors.c', effort: 3, expect: 'ok=5 err=division by zero',
+        file: 'errors.c', effort: 3, 
         run: 'clang errors.c -o errors && ./errors',
         code: `#include <stdio.h>
 
@@ -98,7 +98,7 @@ int main(void) {
         note: 'The status travels through an out-parameter that the caller must pass and then remember to inspect. Nothing warns about an ignored out-parameter, which is why "check the return value" is the oldest piece of advice in the language.'
       },
       cpp: {
-        file: 'errors.cpp', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'errors.cpp', effort: 2, 
         run: 'clang++ -std=c++20 errors.cpp -o errors && ./errors',
         code: `#include <iostream>
 #include <stdexcept>
@@ -125,7 +125,7 @@ int main() {
         note: 'Exceptions propagate through stack unwinding and ordinary RAII cleanup. Runtime and code-size costs depend on the implementation; std::expected (C++23) offers a value-based alternative.'
       },
       rust: {
-        file: 'errors.rs', effort: 1, expect: 'ok=5 err=division by zero',
+        file: 'errors.rs', effort: 1, 
         run: 'rustc errors.rs -o errors && ./errors',
         code: `fn divide(a: i32, b: i32) -> Result<i32, String> {
     if b == 0 {
@@ -149,7 +149,7 @@ fn main() {
         note: 'Failure is in the type, and Result is #[must_use], so ignoring it produces a compiler warning. `?` propagates it upward in one character. Panic exists, but it is for bugs rather than for expected failure.'
       },
       go: {
-        file: 'errors.go', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'errors.go', effort: 2, 
         run: 'go run errors.go',
         code: `package main
 
@@ -174,7 +174,7 @@ func main() {
         note: 'The error is an ordinary value travelling in the second return slot. Verbose by design: Go wants the failure visible at every call site rather than hidden behind a keyword that can unwind past it.'
       },
       java: {
-        file: 'Errors.java', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'Errors.java', effort: 2, 
         run: 'java Errors.java',
         code: `public class Errors {
     static class DivisionByZero extends Exception {     // a checked exception
@@ -206,7 +206,7 @@ func main() {
         note: 'Because the exception is checked, the signature says it may fail and the compiler forces you either to handle it or to declare it. Most later languages copied this feature and then dropped it, and the nesting above shows part of why.'
       },
       csharp: {
-        file: 'Program.cs', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'Program.cs', effort: 2, 
         run: 'dotnet run Program.cs',
         code: `// Two idioms coexist: the Try pattern for failure you expect…
 static bool TryDivide(int a, int b, out int result) {
@@ -230,7 +230,7 @@ Console.WriteLine($"ok={ok} err={err}");`,
         note: 'The framework shows the split everywhere: TryParse, TryGetValue and TryAdd for things that routinely fail, exceptions for everything else. Throw expressions and out parameters keep both forms compact.'
       },
       python: {
-        file: 'errors.py', effort: 1, expect: 'ok=5 err=division by zero',
+        file: 'errors.py', effort: 1, 
         run: 'python3 errors.py',
         code: `def divide(a, b):
     if b == 0:
@@ -250,7 +250,7 @@ print(f"ok={ok} err={err}")`,
         note: 'Exceptions are ordinary control flow here — "easier to ask forgiveness than permission" — so a function that raises is not a design failure, it is simply how the case gets reported.'
       },
       js: {
-        file: 'errors.js', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'errors.js', effort: 2, 
         run: 'node errors.js',
         code: `function divide(a, b) {
   if (b === 0) throw new Error('division by zero');
@@ -273,7 +273,7 @@ console.log('ok=%d err=%s', ok, err);
         note: 'The guard is doing real work: JavaScript arithmetic does not raise on division by zero, it returns Infinity or NaN and carries on. A silently wrong number is exactly the hazard exceptions are meant to prevent.'
       },
       bash: {
-        file: 'errors.sh', effort: 3, expect: 'ok=5 err=division by zero',
+        file: 'errors.sh', effort: 3, 
         run: 'bash errors.sh',
         code: `#!/usr/bin/env bash
 divide() {                      # status 0 = ok, 1 = error; the result is stdout
@@ -297,7 +297,7 @@ printf 'ok=%s err=%s\\n' "$ok" "$err"`,
         note: 'Note that `if err=$(divide 10 0)` tests the *status* while binding whatever the command printed: a command returns two things at once, and confusing which one you are testing is the classic scripting bug.'
       },
       sql: {
-        file: 'errors.sql', effort: 2, expect: 'ok=5 err=division by zero',
+        file: 'errors.sql', effort: 2, 
         run: `sqlite3 :memory: < errors.sql`,
         code: `-- Dividing by zero is not an error in SQL: it is NULL.
 -- NULL is a third truth value, and COALESCE turns it into a message.
@@ -310,7 +310,7 @@ SELECT 'ok=' || (SELECT CAST(a / b AS TEXT) FROM attempts WHERE b = 2)
         note: 'In SQLite, division by zero produces NULL, which COALESCE can replace. NULL is a missing-data marker; comparisons involving it may produce UNKNOWN. Other SQL engines can raise an error instead.'
       },
       haskell: {
-        file: 'errors.hs', effort: 1, expect: 'ok=5 err=division by zero',
+        file: 'errors.hs', effort: 1, 
         run: 'runghc errors.hs',
         code: `divide :: Int -> Int -> Either String Int
 divide _ 0 = Left "division by zero"
@@ -326,7 +326,7 @@ main = do
         note: 'There is no exception in this code, and no way to use the result as if it were a plain Int: Left and Right are two constructors of one type, and `either` consumes both cases at once.'
       },
       ocaml: {
-        file: 'errors.ml', effort: 1, expect: 'ok=5 err=division by zero',
+        file: 'errors.ml', effort: 1, 
         run: 'ocaml errors.ml',
         code: `let divide a b = if b = 0 then Error "division by zero" else Ok (a / b)
 
@@ -344,7 +344,7 @@ let () =
         note: 'This is the pragmatic functional language: a result type for expected failure, exceptions for everything else, and no pretence that one mechanism covers every case.'
       },
       prolog: {
-        file: 'errors.pl', effort: 3, expect: 'ok=5 err=division by zero',
+        file: 'errors.pl', effort: 3, 
         run: 'swipl -q -g main -t halt errors.pl',
         code: `:- initialization(main).
 

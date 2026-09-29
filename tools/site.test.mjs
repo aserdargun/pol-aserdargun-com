@@ -42,7 +42,7 @@ const meta = key => {
   return null;
 };
 
-const title = (html.match(/<title>([^<]*)<\/title>/) || [, ''])[1].trim();
+const title = (html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '').trim();
 const description = meta('description');
 const lang = attr((html.match(/<html\b[^>]*>/) || [''])[0], 'lang');
 

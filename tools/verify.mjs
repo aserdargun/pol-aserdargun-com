@@ -110,7 +110,6 @@ function brokenString(code) {
     const line = lines[n];
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
-      const prev = line[i - 1];
       if (ch === '\\' && (inStr || inChar)) { i++; continue; }        // escape
       if (inStr) { if (ch === '"') inStr = false; continue; }
       if (inChar) { if (ch === "'") inChar = false; continue; }

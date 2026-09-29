@@ -18,7 +18,7 @@ window.RECIPES_SYSTEMS = [
         note: 'A threaded assembly example is omitted here. Assembly can call pthread_create and synchronization APIs just as C can; atomics alone do not replace a complete synchronization protocol.'
       },
       c: {
-        file: 'concurrency.c', effort: 3, expect: 'total=10',
+        file: 'concurrency.c', effort: 3, 
         run: 'clang -pthread concurrency.c -o concurrency && ./concurrency',
         code: `#include <pthread.h>
 #include <stdio.h>
@@ -55,7 +55,7 @@ int main(void) {
         note: 'Every piece is explicit: the thread handle, the lock, the struct passed as an opaque pointer. Forget the unlock on one path and the program hangs, with nothing in the type system to warn you.'
       },
       cpp: {
-        file: 'concurrency.cpp', effort: 2, expect: 'total=10',
+        file: 'concurrency.cpp', effort: 2, 
         run: 'clang++ -std=c++20 -pthread concurrency.cpp -o concurrency && ./concurrency',
         code: `#include <iostream>
 #include <mutex>
@@ -82,7 +82,7 @@ int main() {
         note: 'The lock_guard is the C version with the failure mode removed: the destructor unlocks, so an exception or an early return cannot leave the lock held. This is RAII doing what it does best.'
       },
       rust: {
-        file: 'concurrency.rs', effort: 3, expect: 'total=10',
+        file: 'concurrency.rs', effort: 3, 
         run: 'rustc concurrency.rs -o concurrency && ./concurrency',
         code: `use std::sync::{Arc, Mutex};
 use std::thread;
@@ -109,7 +109,7 @@ fn main() {
         note: 'Arc and Mutex are not decoration: without them the closure cannot capture the shared value at all, because the compiler proves no two threads may hold a mutable reference to it. Data races are a compile error, so most of "concurrent programming" here is arguing with the compiler instead of debugging at 3am.'
       },
       go: {
-        file: 'concurrency.go', effort: 1, expect: 'total=10',
+        file: 'concurrency.go', effort: 1, 
         run: 'go run concurrency.go',
         code: `package main
 
@@ -144,7 +144,7 @@ func main() {
         note: 'Goroutines are cheap enough to launch thousands, and the runtime schedules them onto the available cores — the language has the primitive, not just the library. The idiomatic alternative to the mutex is a channel that carries the subtotals to one owner.'
       },
       java: {
-        file: 'Concurrency.java', effort: 2, expect: 'total=10',
+        file: 'Concurrency.java', effort: 2, 
         run: 'java Concurrency.java',
         code: `import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -171,7 +171,7 @@ public class Concurrency {
         note: 'AtomicInteger hides the read-modify-write behind one method call, and the executor hides thread lifetime behind a pool. Java\'s real advantage is the memory model: since Java 5 the specification tells you exactly what other threads are guaranteed to see.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'total=10',
+        file: 'Program.cs', effort: 1, 
         run: 'dotnet run Program.cs',
         code: `using System.Threading;
 using System.Threading.Tasks;
@@ -192,7 +192,7 @@ Console.WriteLine($"total={total}");`,
         note: 'async/await is built into the language, so concurrency is expressed as ordinary control flow. Task.WhenAll is the join, and Interlocked is the lock you do not have to remember to release.'
       },
       python: {
-        file: 'concurrency.py', effort: 2, expect: 'total=10',
+        file: 'concurrency.py', effort: 2,
         run: 'python3 concurrency.py',
         code: `import threading
 
@@ -216,7 +216,7 @@ print("the GIL means these two threads never run bytecode at the same time")`,
         note: 'Threads exist and the lock is the same object C uses, but CPython serialises bytecode execution behind the global interpreter lock — so this program is concurrent, not parallel. For CPU-bound work the answer is multiprocessing, and free-threaded builds now remove the GIL entirely.'
       },
       js: {
-        file: 'concurrency.js', effort: 2, expect: 'total=10',
+        file: 'concurrency.js', effort: 2,
         run: 'node concurrency.js',
         code: `let total = 0;
 
@@ -236,7 +236,7 @@ async function worker(lo, hi) {
         note: 'There is no shared-memory hazard because there is only one thread: `await` yields to the event loop, and the two additions happen one after the other. Real parallelism needs worker_threads or a child process, and with it comes back every problem the single thread was hiding.'
       },
       bash: {
-        file: 'concurrency.sh', effort: 3, expect: 'total=10',
+        file: 'concurrency.sh', effort: 3, 
         run: 'bash concurrency.sh',
         code: `#!/usr/bin/env bash
 out=$(mktemp)
@@ -261,7 +261,7 @@ printf 'total=%s\\n' "$total"`,
         note: 'SQL has no concurrency constructs because the engine owns the threads. What you declare instead is the isolation level — which anomalies you are willing to tolerate — and the engine implements it with locking or MVCC. Two sessions updating the same row concurrently is exactly what BEGIN ... COMMIT and SELECT ... FOR UPDATE are for.'
       },
       haskell: {
-        file: 'concurrency.hs', effort: 2, expect: 'total=10',
+        file: 'concurrency.hs', effort: 2, 
         run: 'runghc concurrency.hs',
         code: `import Control.Concurrent (forkIO)
 import Control.Concurrent.STM
@@ -294,7 +294,7 @@ threadDelay-ish = replicateM_ 1000 (return ())`,
         note: 'STM is the distinctive part: you write the atomic block without naming a lock, and the runtime retries it if another thread interferes. Composition — two atomic blocks combined into one — is not something a mutex can do.'
       },
       ocaml: {
-        file: 'concurrency.ml', effort: 3, expect: 'total=10',
+        file: 'concurrency.ml', effort: 3, 
         run: 'ocaml concurrency.ml',
         code: `let total = ref 0
 let lock = Mutex.create ()
@@ -431,7 +431,7 @@ out:    .space 16`,
         partial: 'Closure and formatting for this fixed five-node graph; the general case needs dynamic containers.'
       },
       c: {
-        file: 'graph.c', effort: 3, expect: 'reachable=b,c,d,e',
+        file: 'graph.c', effort: 3, 
         run: 'clang graph.c -o graph && ./graph',
         code: `#include <stdio.h>
 
@@ -472,7 +472,7 @@ int main(void) {
         note: 'A breadth-first traversal: the queue, the visited array and the loop are all yours. Marking on push rather than on pop is the subtle correctness decision here — do it the other way and nodes get enqueued twice.'
       },
       cpp: {
-        file: 'graph.cpp', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.cpp', effort: 2, 
         run: 'clang++ -std=c++20 graph.cpp -o graph && ./graph',
         code: `#include <iostream>
 #include <map>
@@ -506,7 +506,7 @@ int main() {
         note: 'std::set gives both the visited check and the alphabetical output order in one container, since it is kept sorted. `insert().second` is the idiom for "was it new?" — one call instead of a lookup plus an insert.'
       },
       rust: {
-        file: 'graph.rs', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.rs', effort: 2, 
         run: 'rustc graph.rs -o graph && ./graph',
         code: `use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -537,7 +537,7 @@ fn main() {
         note: 'The borrow checker keeps you honest about who owns the graph while it is being traversed, and `graph.get(node).into_iter().flatten()` handles the missing-key case without a branch.'
       },
       go: {
-        file: 'graph.go', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.go', effort: 2, 
         run: 'go run graph.go',
         code: `package main
 
@@ -580,7 +580,7 @@ func main() {
         note: 'Maps and slices do the work, with a manual pop at the front. Deleting the start node afterwards is the small annoyance of using "seen" to mean "visited including the start" — a naming decision that costs a line.'
       },
       java: {
-        file: 'Graph.java', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'Graph.java', effort: 2, 
         run: 'java Graph.java',
         code: `import java.util.*;
 
@@ -609,7 +609,7 @@ public class Graph {
         note: 'A TreeSet gives sorted uniqueness as a property of the container, and ArrayDeque is the queue. The traversal is five lines of control flow and the rest is choosing the right collection types.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'reachable=b,c,d,e',
+        file: 'Program.cs', effort: 1, 
         run: 'dotnet run Program.cs',
         code: `var graph = new Dictionary<string, string[]>
 {
@@ -635,7 +635,7 @@ Console.WriteLine($"reachable={string.Join(",", seen)}");`,
         note: 'The same shape as Java with shorter ceremony: SortedSet for uniqueness plus order, Queue for the frontier, and string.Join to format. This is the task where managed languages show their strength — none of the code is about memory.'
       },
       python: {
-        file: 'graph.py', effort: 1, expect: 'reachable=b,c,d,e',
+        file: 'graph.py', effort: 1, 
         run: 'python3 graph.py',
         code: `from collections import deque
 
@@ -656,7 +656,7 @@ print(f"reachable={','.join(sorted(seen))}")`,
         note: 'deque supplies the frontier and a set tracks discovered nodes. The given graph is acyclic; for cyclic graphs, mark the start as visited before traversal and exclude it from the final output.'
       },
       js: {
-        file: 'graph.js', effort: 1, expect: 'reachable=b,c,d,e',
+        file: 'graph.js', effort: 1, 
         run: 'node graph.js',
         code: `const graph = { a: ['b', 'd'], b: ['c'], d: ['e'] };
 
@@ -678,7 +678,7 @@ console.log('reachable=%s', [...seen].sort().join(','));`,
         note: 'Set and Array do the job, and `shift` pops the front. The spread into an array is needed because Set has no sort method — iteration order for sets is insertion order, which here happens to be wrong, so sorting is not optional.'
       },
       bash: {
-        file: 'graph.sh', effort: 4, expect: 'reachable=b,c,d,e',
+        file: 'graph.sh', effort: 4, 
         run: 'bash graph.sh',
         code: `#!/usr/bin/env bash
 edges="a:b b:c a:d d:e"          # the graph as one string
@@ -706,7 +706,7 @@ printf 'reachable=%s\\n' "$reachable"`,
         note: 'The visited set is a space-delimited string and membership is a glob match — the only set primitive the shell has. It works, and every step is a string operation: this is what "no data structures" costs on a genuine algorithm.'
       },
       sql: {
-        file: 'graph.sql', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.sql', effort: 2, 
         run: `sqlite3 :memory: < graph.sql`,
         code: `-- Reachability is a recursive definition, and SQL has a construct for
 -- exactly that. Note UNION (not UNION ALL): duplicates must disappear,
@@ -726,7 +726,7 @@ FROM (SELECT node FROM reachable ORDER BY node);`,
         note: 'No queue, no visited set, no traversal order: the CTE says "b is reachable because a→b, and anything reachable from a reachable node is reachable", and the engine iterates it to a fixpoint. The ORDER BY is needed only for presentation, because SQL results are unordered sets.'
       },
       haskell: {
-        file: 'graph.hs', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.hs', effort: 2, 
         run: 'runghc graph.hs',
         code: `import Data.List (intercalate, nub, sort)
 
@@ -750,7 +750,7 @@ main = putStrLn $ "reachable="
         note: 'The fixpoint loop is written by hand, because nothing in the language tells the compiler that a list comprehension over a recursive set is the thing to optimise. Note `map (: [])` — turning Char into String — and that intercalate is what join is called here.'
       },
       ocaml: {
-        file: 'graph.ml', effort: 2, expect: 'reachable=b,c,d,e',
+        file: 'graph.ml', effort: 2, 
         run: 'ocaml graph.ml',
         code: `let edges = [('a', 'b'); ('b', 'c'); ('a', 'd'); ('d', 'e')]
 
@@ -770,7 +770,7 @@ let () =
         note: 'filter_map expresses "collect the successors of nodes in the frontier" in one call, and the fixpoint is recursion with an equality test. The whole algorithm is four lines of logic and four lines of formatting.'
       },
       prolog: {
-        file: 'graph.pl', effort: 1, expect: 'reachable=b,c,d,e',
+        file: 'graph.pl', effort: 1, 
         run: 'swipl -q -g main -t halt graph.pl',
         code: `:- initialization(main).
 

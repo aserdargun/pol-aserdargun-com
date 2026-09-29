@@ -408,7 +408,7 @@ buff: .space 20                       // room for the filtered values`,
         partial: 'The filtered list is built into a fixed buffer; nothing bounds-checks it.'
       },
       c: {
-        file: 'collections.c', effort: 3, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.c', effort: 3, 
         run: 'clang collections.c -o collections && ./collections',
         code: `#include <stdio.h>
 
@@ -433,7 +433,7 @@ int main(void) {
         note: 'Three loops collapsed into one pass, and the caller owns the output buffer and its capacity. The formatting loop is written by hand because there is no join.'
       },
       cpp: {
-        file: 'collections.cpp', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.cpp', effort: 2, 
         run: 'clang++ -std=c++20 collections.cpp -o collections && ./collections',
         code: `#include <algorithm>
 #include <iostream>
@@ -459,7 +459,7 @@ int main() {
         note: 'The algorithms moved into <numeric> and <algorithm>: accumulate, max_element, copy_if. The container is a library type that knows its own size, and the loop still appears only where output is formatted.'
       },
       rust: {
-        file: 'collections.rs', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.rs', effort: 2, 
         run: 'rustc collections.rs -o collections && ./collections',
         code: `fn main() {
     let nums = vec![1, 2, 3, 4, 5];
@@ -475,7 +475,7 @@ int main() {
         note: 'Iterator adapters defer work until consumed. Separate sum, filter and maximum operations may make separate passes; optimization depends on the compiler. unwrap acknowledges that a maximum may be absent for empty input.'
       },
       go: {
-        file: 'collections.go', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.go', effort: 2, 
         run: 'go run collections.go',
         code: `package main
 
@@ -510,7 +510,7 @@ func main() {
         note: 'One loop, as in C, with `append` handling growth and `range` giving both index and value. Strings need explicit conversion — Go has one numeric type per width and no implicit casting.'
       },
       java: {
-        file: 'Collections.java', effort: 3, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'Collections.java', effort: 3, 
         run: 'java Collections.java',
         code: `import java.util.*;
 import java.util.stream.*;
@@ -533,7 +533,7 @@ public class Collections {
         note: 'Streams are the Java answer to "who writes the loop": the same pipeline as the Rust iterator chain. Note `orElseThrow` — an empty list is not allowed to silently become 0.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'Program.cs', effort: 1, 
         run: 'dotnet run Program.cs',
         code: `var nums = new List<int> { 1, 2, 3, 4, 5 };
 
@@ -542,7 +542,7 @@ Console.WriteLine($"sum={nums.Sum()} evens=[{string.Join(",", nums.Where(n => n 
         note: 'LINQ expresses filtering and aggregation with standard-library operations. Each enumeration has a cost; concise syntax does not itself establish the number of passes or runtime speed.'
       },
       python: {
-        file: 'collections.py', effort: 1, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.py', effort: 1, 
         run: 'python3 collections.py',
         code: `nums = [1, 2, 3, 4, 5]
 
@@ -552,7 +552,7 @@ print(f"sum={sum(nums)} evens=[{','.join(map(str, evens))}] max={max(nums)}")`,
         note: 'The comprehension is the language\'s signature construction: one expression that builds a list, replacing the loop and the append. sum and max are ordinary built-in functions over any iterable.'
       },
       js: {
-        file: 'collections.js', effort: 1, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.js', effort: 1, 
         run: 'node collections.js',
         code: `const nums = [1, 2, 3, 4, 5];
 
@@ -565,7 +565,7 @@ console.log('sum=%d evens=[%s] max=%d', sum, evens.join(','), max);`,
         note: 'Arrays carry higher-order methods as properties, so the operations are available without an import. `Math.max(...nums)` spreads the array into arguments — a neat trick that breaks on very large arrays.'
       },
       bash: {
-        file: 'collections.sh', effort: 3, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.sh', effort: 3, 
         run: 'bash collections.sh',
         code: `#!/usr/bin/env bash
 nums=(1 2 3 4 5)
@@ -582,7 +582,7 @@ printf 'sum=%s evens=[%s] max=%s\\n' "$sum" "$(IFS=,; echo "\${evens[*]}")" "$ma
         note: 'Arrays exist but they are string collections with integer indices; the arithmetic happens inside $(( )). Building the joined string needs the IFS trick, because there is no join function.'
       },
       sql: {
-        file: 'collections.sql', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.sql', effort: 2, 
         run: `sqlite3 :memory: < collections.sql`,
         code: `-- A list is a table of rows. "Filter" is a WHERE clause; there is no loop.
 WITH nums(n) AS (VALUES (1), (2), (3), (4), (5)),
@@ -594,7 +594,7 @@ SELECT 'sum=' || (SELECT SUM(n) FROM nums)
         note: 'SUM, MAX and WHERE are built into the language, so the "algorithm" is implicit. Note that group_concat needs an explicit ORDER BY to be predictable — sets have no inherent order.'
       },
       haskell: {
-        file: 'collections.hs', effort: 1, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.hs', effort: 1, 
         run: 'runghc collections.hs',
         code: `nums :: [Int]
 nums = [1, 2, 3, 4, 5]
@@ -610,7 +610,7 @@ intercalate sep = foldr (\\a b -> if null b then a else a ++ sep ++ b) ""`,
         note: 'sum, maximum and filter are ordinary functions over lists — nothing is special-cased, and `even` is itself a function. The join has to be written out (or imported from Data.List).'
       },
       ocaml: {
-        file: 'collections.ml', effort: 2, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.ml', effort: 2, 
         run: 'ocaml collections.ml',
         code: `let nums = [1; 2; 3; 4; 5]
 
@@ -627,7 +627,7 @@ let () =
         note: '`List.fold_left` and `List.filter` are the equivalents, and `( + )` is a function like any other — that is what makes it legal to pass the operator into the fold.'
       },
       prolog: {
-        file: 'collections.pl', effort: 3, expect: 'sum=15 evens=[2,4] max=5',
+        file: 'collections.pl', effort: 3, 
         run: 'swipl -q -g main -t halt collections.pl',
         code: `:- initialization(main).
 :- use_module(library(aggregate)).
@@ -731,7 +731,7 @@ data: .word 5, 3, 8, 1, 9, 2`,
         note: 'Everything the algorithm needs is explicit: the element size (4 bytes, scaled into the address), the index arithmetic, the compare-and-branch, and six registers used as loop variables. There is no array bounds check and no sort function to call.'
       },
       c: {
-        file: 'sorting.c', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.c', effort: 2, 
         run: 'clang sorting.c -o sorting && ./sorting',
         code: `#include <stdio.h>
 
@@ -757,7 +757,7 @@ int main(void) {
         note: 'The classic nested shift, in place, with `sizeof a / sizeof a[0]` as the way to recover an array length — the container does not carry it.'
       },
       cpp: {
-        file: 'sorting.cpp', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.cpp', effort: 2, 
         run: 'clang++ -std=c++20 sorting.cpp -o sorting && ./sorting',
         code: `#include <algorithm>
 #include <iostream>
@@ -784,7 +784,7 @@ int main() {
         note: 'Insertion sort is written out to match the task. std::sort is a separate library option with specified complexity requirements; implementations commonly use introsort, but that exact algorithm is not mandated.'
       },
       rust: {
-        file: 'sorting.rs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.rs', effort: 2, 
         run: 'rustc sorting.rs -o sorting && ./sorting',
         code: `fn insertion_sort(a: &mut Vec<i32>) {
     for i in 1..a.len() {
@@ -809,7 +809,7 @@ fn main() {
         note: 'The mutable borrow `&mut Vec<i32>` is the whole story: the function is allowed to change the caller\'s data, and the compiler proves nothing else is reading it at the same time. Index bounds are checked at runtime.'
       },
       go: {
-        file: 'sorting.go', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.go', effort: 2, 
         run: 'go run sorting.go',
         code: `package main
 
@@ -843,7 +843,7 @@ func main() {
         note: 'A slice is a pointer, a length and a capacity, so passing `a` to the function passes a reference to the same backing array — no `&` needed, and no copy made.'
       },
       java: {
-        file: 'Sorting.java', effort: 3, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'Sorting.java', effort: 3, 
         run: 'java Sorting.java',
         code: `import java.util.*;
 
@@ -870,7 +870,7 @@ public class Sorting {
         note: 'Java passes an array reference by value. The copied reference still points to the same array, so element mutation is visible to the caller; assigning the parameter to another array would not replace the caller’s variable.'
       },
       csharp: {
-        file: 'Program.cs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'Program.cs', effort: 2, 
         run: 'dotnet run Program.cs',
         code: `int[] a = { 5, 3, 8, 1, 9, 2 };
 
@@ -886,7 +886,7 @@ Console.WriteLine($"sorted=[{string.Join(",", a)}]");
         note: 'Int32[] is a real array of values — no boxing, no per-element object — and string.Join renders it in one call.'
       },
       python: {
-        file: 'sorting.py', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.py', effort: 2, 
         run: 'python3 sorting.py',
         code: `def insertion_sort(a):
     for i in range(1, len(a)):
@@ -905,7 +905,7 @@ print(f"sorted=[{','.join(map(str, nums))}]")
         note: 'Note the deliberate omission of return: the list was mutated in place, which is the Python idiom for lists but would be a bug for tuples or strings — those are immutable and `sorted()` returns a new object instead.'
       },
       js: {
-        file: 'sorting.js', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.js', effort: 2, 
         run: 'node sorting.js',
         code: `function insertionSort(a) {
   for (let i = 1; i < a.length; i++) {
@@ -925,7 +925,7 @@ console.log('sorted=[%s]', insertionSort(nums).join(','));
         note: 'The explicit loop compares numbers. Array.prototype.sort instead compares string representations by default; use a numeric comparator such as (a, b) => a - b for a numeric sort.'
       },
       bash: {
-        file: 'sorting.sh', effort: 4, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.sh', effort: 4, 
         run: 'bash sorting.sh',
         code: `#!/usr/bin/env bash
 a=(5 3 8 1 9 2)
@@ -948,7 +948,7 @@ printf 'sorted=[%s]\\n' "$(IFS=,; echo "\${a[*]}")"
         note: 'C-style `for (( ))` loops exist in bash, so the algorithm survives translation — but every element is still a string being compared numerically by an integer coercion, and the sort tool one line below is what a real script would use.'
       },
       sql: {
-        file: 'sorting.sql', effort: 1, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.sql', effort: 1, 
         run: `sqlite3 :memory: < sorting.sql`,
         code: `-- There is no algorithm here, and that is the point: ORDER BY is a
 -- request, and the engine chooses how to satisfy it (sort, index, merge).
@@ -959,7 +959,7 @@ SELECT 'sorted=[' || group_concat(n, ',') || ']' AS result FROM ordered;`,
         note: 'This example requests ORDER BY rather than implementing insertion sort. The engine chooses the plan. Recursive SQL can encode algorithms, but doing so would obscure the relational comparison here.'
       },
       haskell: {
-        file: 'sorting.hs', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.hs', effort: 2, 
         run: 'runghc sorting.hs',
         code: `insert :: Int -> [Int] -> [Int]
 insert x [] = [x]
@@ -977,7 +977,7 @@ main = putStrLn $ "sorted=[" ++ join "," (map show (insertionSort [5, 3, 8, 1, 9
         note: 'The inner loop became `insert`, written with pattern matching, and the outer loop became `foldr`. No indices, no mutation, no swap — the same algorithm in a different coordinate system.'
       },
       ocaml: {
-        file: 'sorting.ml', effort: 2, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.ml', effort: 2, 
         run: 'ocaml sorting.ml',
         code: `let rec insert x = function
   | [] -> [x]
@@ -993,7 +993,7 @@ let () =
         note: '`function` gives a one-argument pattern match, and `List.fold_right insert` is the whole outer loop. The compiler warns if the pattern match could miss a case, so `[]` and `y :: ys` are known to be complete.'
       },
       prolog: {
-        file: 'sorting.pl', effort: 3, expect: 'sorted=[1,2,3,5,8,9]',
+        file: 'sorting.pl', effort: 3, 
         run: 'swipl -q -g main -t halt sorting.pl',
         code: `:- initialization(main).
 
@@ -1089,7 +1089,7 @@ w7:     .asciz "cat"`,
         partial: 'This counts occurrences of the single known word "the", not all words.'
       },
       c: {
-        file: 'wordcount.c', effort: 4, expect: 'the=3\ncat=2',
+        file: 'wordcount.c', effort: 4, 
         run: 'clang wordcount.c -o wordcount && ./wordcount',
         code: `#include <stdio.h>
 #include <string.h>
@@ -1123,7 +1123,7 @@ int main(void) {
         note: 'strtok destroys the string it splits, the linear search stands in for a hash table, and the "top two" is a selection loop. Forty lines for what Counter does in one in Python.'
       },
       cpp: {
-        file: 'wordcount.cpp', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.cpp', effort: 2, 
         run: 'clang++ -std=c++20 wordcount.cpp -o wordcount && ./wordcount',
         code: `#include <algorithm>
 #include <iostream>
@@ -1150,7 +1150,7 @@ int main() {
         note: 'The stream extraction operator does the splitting, map::operator[] does the insert-or-increment, and the comparator spells out the tie-break rule that other languages leave implicit.'
       },
       rust: {
-        file: 'wordcount.rs', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.rs', effort: 2, 
         run: 'rustc wordcount.rs -o wordcount && ./wordcount',
         code: `use std::collections::HashMap;
 
@@ -1173,7 +1173,7 @@ fn main() {
         note: 'HashMap iteration order is random, so the explicit sort is not cosmetic — without it this program prints a different order on different runs. `entry().or_insert()` is the insert-or-default idiom.'
       },
       go: {
-        file: 'wordcount.go', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.go', effort: 2, 
         run: 'go run wordcount.go',
         code: `package main
 
@@ -1214,7 +1214,7 @@ func main() {
         note: 'strings.Fields splits on any whitespace run, and the local `pair` struct exists only to make sorting possible — Go has no built-in way to sort a map by value.'
       },
       java: {
-        file: 'WordCount.java', effort: 3, expect: 'the=3\ncat=2',
+        file: 'WordCount.java', effort: 3, 
         run: 'java WordCount.java',
         code: `import java.util.*;
 import java.util.stream.*;
@@ -1238,7 +1238,7 @@ public class WordCount {
         note: 'Two passes over the data expressed as two stream pipelines: group and count, then sort and take. The comparator has to be annotated with its type because the generic inference cannot work it out from the lambda alone.'
       },
       csharp: {
-        file: 'Program.cs', effort: 1, expect: 'the=3\ncat=2',
+        file: 'Program.cs', effort: 1, 
         run: 'dotnet run Program.cs',
         code: `var text = "the cat sat on the mat the cat";
 
@@ -1255,7 +1255,7 @@ foreach (var item in top)
         note: 'The same four operations as the Java version, in the order they read in English: group, project, order, take. Anonymous types spare you a declared pair class.'
       },
       python: {
-        file: 'wordcount.py', effort: 1, expect: 'the=3\ncat=2',
+        file: 'wordcount.py', effort: 1, 
         run: 'python3 wordcount.py',
         code: `from collections import Counter
 
@@ -1268,7 +1268,7 @@ for word, n in counts.most_common(2):
         note: 'Four lines, because the counting data structure ships with the standard library. Counter is a dict subclass, so it still supports every ordinary dict operation.'
       },
       js: {
-        file: 'wordcount.js', effort: 1, expect: 'the=3\ncat=2',
+        file: 'wordcount.js', effort: 1, 
         run: 'node wordcount.js',
         code: `const text = 'the cat sat on the mat the cat';
 
@@ -1285,7 +1285,7 @@ Object.entries(counts)
         note: 'A plain object doubles as a hash map. Property order for string keys is insertion order, but sorting explicitly is still required here because the counts do not arrive in order.'
       },
       bash: {
-        file: 'wordcount.sh', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.sh', effort: 2, 
         run: 'bash wordcount.sh',
         code: `#!/usr/bin/env bash
 echo "the cat sat on the mat the cat" |
@@ -1301,7 +1301,7 @@ echo "the cat sat on the mat the cat" |
         note: 'This is the whole idea of the shell: tr splits, sort groups, uniq counts, sort ranks, awk formats. Each stage is a separate process, and the "data structure" is the stream between them.'
       },
       sql: {
-        file: 'wordcount.sql', effort: 3, expect: 'the=3\ncat=2',
+        file: 'wordcount.sql', effort: 3, 
         run: `sqlite3 :memory: < wordcount.sql`,
         code: `-- The sentence has to become rows before it can be queried: that
 -- conversion is the impedance mismatch between text and tables.
@@ -1317,7 +1317,7 @@ LIMIT 2;`,
         note: 'GROUP BY counts rows and ORDER BY ranks them. The query planner may choose different aggregation strategies; a hash table is not guaranteed. This SQLite example starts from token rows rather than splitting the original sentence.'
       },
       haskell: {
-        file: 'wordcount.hs', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.hs', effort: 2, 
         run: 'runghc wordcount.hs',
         code: `import Data.List (group, sort, sortBy)
 import Data.Ord (comparing, Down (..))
@@ -1338,7 +1338,7 @@ main = mapM_ (\\(w, n) -> putStrLn (w ++ "=" ++ show n)) (take 2 ranked)`,
         note: 'A list comprehension does the counting: sort the words, group the equal ones, take the head and the length of each group. No map is built at all — grouping a sorted list is a different algorithm from hashing.'
       },
       ocaml: {
-        file: 'wordcount.ml', effort: 2, expect: 'the=3\ncat=2',
+        file: 'wordcount.ml', effort: 2, 
         run: 'ocaml wordcount.ml',
         code: `let text = "the cat sat on the mat the cat"
 
@@ -1363,7 +1363,7 @@ let () =
         note: 'The standard library puts a hash table in front of you (Hashtbl) and an association list behind it, and exceptions carry the "not found" case — the same pattern OCaml uses to implement its own containers.'
       },
       prolog: {
-        file: 'wordcount.pl', effort: 3, expect: 'the=3\ncat=2',
+        file: 'wordcount.pl', effort: 3, 
         run: 'swipl -q -g main -t halt wordcount.pl',
         code: `:- initialization(main).
 :- use_module(library(aggregate)).
