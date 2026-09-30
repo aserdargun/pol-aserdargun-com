@@ -22,6 +22,10 @@
     window.RECIPES_SYSTEMS || []
   );
   const CONCEPTS = window.CONCEPTS || [];
+  const SCOPE_RATINGS = window.SCOPE_RATINGS || [];
+  const COVERED_LANGUAGES = window.COVERED_LANGUAGES || [];
+  const EXCLUDED_FAMILIES = window.EXCLUDED_FAMILIES || [];
+  const SCOPE_CAVEAT = window.SCOPE_CAVEAT || '';
   const MATRIX = window.MATRIX || [];
   const MATRIX_LEGEND = window.MATRIX_LEGEND || {};
   const VERIF = window.VERIFICATION || {};
@@ -170,6 +174,35 @@
           ['https://www.swi-prolog.org/pldoc/man?section=threadcreate', 'SWI-Prolog · thread APIs']
         ].map(([url, title]) => `<li><a href="${url}">${title}</a></li>`).join('')}</ul></section>
       <section class="panel"><h2>Further reading</h2><ul><li><a href="programming-languages.md">Programming language catalog and dated ranking sources</a></li><li><a href="cs-coverage-assessment.md">CS coverage: original ten-language assessment and current scope</a></li><li><a href="https://github.com/aserdargun/pol-aserdargun-com">Source repository and verification tools</a></li></ul></section>`;
+  }
+
+  function viewScope() {
+    return `
+    <section class="hero">
+      <h1>Coverage scope</h1>
+      <p>POL covers ${COVERED_LANGUAGES.length} languages across ${SCOPE_RATINGS.reduce((n, g) => n + g.areas.length, 0)} computer-science areas. The catalog file lists a much wider index; this page is the reasoned view of what is actually runnable here, and what is deliberately left out.</p>
+    </section>
+    <section class="panel">
+      <h2>What is runnable here</h2>
+      <p>${COVERED_LANGUAGES.join(' · ')}</p>
+    </section>
+    ${SCOPE_RATINGS.map((group) => `
+    <section class="panel">
+      <h2>${group.label} · ${group.areas.length} ${group.areas.length === 1 ? 'area' : 'areas'}</h2>
+      <p>${group.areas.join(' · ')}</p>
+    </section>`).join('')}
+    <section class="panel">
+      <h2>Deliberately out of scope</h2>
+      <ul>${EXCLUDED_FAMILIES.map(([name, why]) => `<li><b>${name}</b> — ${why}</li>`).join('')}</ul>
+    </section>
+    <section class="panel">
+      <h2>What this assessment is not</h2>
+      <p>${SCOPE_CAVEAT}</p>
+      <ul>
+        <li><a href="programming-languages.md">Full dated language catalog and ranking sources</a></li>
+        <li><a href="cs-coverage-assessment.md">CS coverage assessment</a></li>
+      </ul>
+    </section>`;
   }
 
   function viewOverview() {
@@ -539,6 +572,7 @@
       html = c ? viewConcept(c) : viewNotFound(parts.join('/'));
     } else if (view === 'matrix') html = viewMatrix();
     else if (view === 'compare') html = viewCompare(params);
+    else if (view === 'scope') html = viewScope();
     else if (view === 'about') html = viewAbout();
     else if (view === 'search') html = viewSearch(params.get('q') || '');
     else html = viewNotFound(parts.join('/'));
