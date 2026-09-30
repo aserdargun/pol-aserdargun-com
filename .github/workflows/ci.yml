@@ -3,8 +3,9 @@ name: CI
 # Pull-request gate for the language atlas. The site ships as committed, so
 # the cheapest possible failure — a missing data file, a dangling asset
 # reference, a head that lost its share metadata — is worth catching here
-# instead of on the live site. No build step and no install: check runs on
-# Node's built-in runner only.
+# instead of on the live site. No build step: check runs on Node's built-in
+# runner, and the only install is the dev-only lint toolchain that `npm run
+# check` invokes as its first step.
 
 on:
   pull_request:
@@ -28,4 +29,6 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run check
