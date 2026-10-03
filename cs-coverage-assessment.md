@@ -1,6 +1,8 @@
-# Coverage Assessment: 10 Languages as a Computer Science Vehicle Set
+# Coverage Assessment: Languages as a Computer Science Vehicle Set
 
-**Scope update — 21 September 2026:** This is an editorial assessment of the original ten-language set, not a measured curriculum benchmark. POL now includes **15 languages**: the original ten plus SQL, Haskell, OCaml, Prolog and Datalog. The additions broaden the examples; they do not make the app a complete CS course. Lisp macros, actor-oriented languages, array languages, hardware description and proof assistants remain outside the runnable corpus. See [POL](index.html#/about) for its portfolio position and verification limits.
+**Scope update — reviewed 3 October 2026:** This is an editorial assessment of the original ten-language set, not a measured curriculum benchmark. POL now includes **15 languages**: the original ten plus SQL, Haskell, OCaml, Prolog and Datalog. Sections 2 through 7 still reason about that original ten, so "ten" below means the ten the assessment was written against, not today's corpus. The additions broaden the examples; they do not make the app a complete CS course. Lisp macros, actor-oriented languages, array languages, hardware description and proof assistants remain outside the runnable corpus. See [POL](index.html#/about) for its portfolio position and verification limits.
+
+**Reconciliation note — 3 October 2026:** The corpus was checked against the shipped data rather than against this document: `window.LANGUAGES` holds 15 entries and `window.CONCEPTS` holds 12, which matches the 15-language and 12-of-25 figures used here. Two stale counts were corrected in the body, a `10 → 13` that contradicted the fifteen-language conclusion drawn in the same sentence, and a closing reference to "thirteen languages". No claim of measured coverage is made, and no benchmark, score or outcome was recomputed.
 
 **The original set:** Assembly · C · C++ · Bash · Rust · Go · Java · C# · Python · JavaScript
 
@@ -195,7 +197,7 @@ Programming language theory · type systems · functional programming as a disci
 | **2** | **Haskell** *or* **OCaml** | Purity, inference, laziness, TCO, monads, ADTs, type classes |
 | **3** | **Prolog** *or* **Datalog** | Logic programming, unification, backtracking, declarative search |
 
-**10 → 13 broadens the paradigm coverage**; choosing both functional and both logic languages gives the 15-language POL corpus. This still omits important approaches, including homoiconic macros, actors, array programming and formal verification.
+**10 → 15 broadens the paradigm coverage**; adding SQL plus both functional and both logic languages gives the 15-language POL corpus. This still omits important approaches, including homoiconic macros, actors, array programming and formal verification.
 
 ### If you must trim instead of add
 
@@ -225,7 +227,7 @@ The two pairs you can safely collapse are **(C++ | Rust)** and **(Java | C#)**. 
 
 ## 8. The part no language choice fixes
 
-Worth saying plainly: **computer science is not a set of languages.** Automata and computability, complexity theory, algorithms and proof technique, probability, linear algebra, discrete maths, information theory, and type theory are mathematics. No language — in this set or any other — substitutes for them, and someone fluent in all thirteen languages above who cannot reason about asymptotics or prove an invariant is not educated in computer science.
+Worth saying plainly: **computer science is not a set of languages.** Automata and computability, complexity theory, algorithms and proof technique, probability, linear algebra, discrete maths, information theory, and type theory are mathematics. No language — in this set or any other — substitutes for them, and someone fluent in all fifteen languages above who cannot reason about asymptotics or prove an invariant is not educated in computer science.
 
 What languages *do* give you is **concreteness**: a place to watch the abstract ideas run. On that measure, this set is strong — it lets you see the machine (Assembly, C), the abstraction layer above it (C++, Rust), the managed layer above that (Go, Java, C#), the dynamic layer (Python, JavaScript), and the systems interface (Bash). If you add SQL, one functional language, and one logic language, you will have concrete examples of several additional paradigms, with important gaps still remaining.
 
