@@ -95,15 +95,22 @@ node tools/verify.mjs        # runs every configured runner available; exits non
 node tools/verify.mjs --only graph
 node tools/verify.mjs --portable --no-write   # what CI runs: skips the arm64-macOS-only
                                               # assembly, and does not rewrite the manifest
-node tools/check-ui.mjs      # tokenizer invariants + renders all task, language and concept routes in headless Chrome
+node tools/check-ui.mjs      # identity + evidence + tokenizer invariants, then renders all task, language and concept routes in headless Chrome
 node tools/check-ui.mjs --shots
 # Optional: POL_CHROME=/absolute/path/to/chrome node tools/check-ui.mjs
 ```
 
-CI runs the same corpus check on every push to `main`
-([.github/workflows/deploy-swa-pol-aserdargun-com.yml](.github/workflows/deploy-swa-pol-aserdargun-com.yml))
-and then uploads the repository as the Azure Static Web Apps artifact — there is no build step
+`npm run check` is the pull-request gate, and it runs `check-ui.mjs` last. The corpus check is
+separate and runs on every push to `main`
+([.github/workflows/deploy-swa-pol-aserdargun-com.yml](.github/workflows/deploy-swa-pol-aserdargun-com.yml)),
+which then uploads the repository as the Azure Static Web Apps artifact — there is no build step
 to run, so the validation *is* the release gate.
+
+`check-ui.mjs` is part of that gate because the claims the site makes about itself are only worth
+as much as the check behind them. It refuses a `data/verification.js` entry that names a missing
+snippet, a `na` scope note, or a status other than `executed` — without that, a hand-edited
+manifest could put a `✓ runs` badge on a task that was never run, and `npm run check` would stay
+green. Where no browser is available it reports the skip and still runs the data checks.
 
 `verify.mjs` loads the data files in a sandbox, writes each snippet to a temp file, runs the
 command in `run`, and compares stdout to `expect` after trimming boundary newlines and trailing whitespace. On a successful full run it rewrites `data/verification.js`; partial `--only` checks do not rewrite it. This file

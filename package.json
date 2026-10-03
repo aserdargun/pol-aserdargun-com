@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node tools/serve.mjs",
     "test": "node --test tools/site.test.mjs",
-    "check": "npm run lint && node tools/check-site.mjs && node --test tools/site.test.mjs",
+    "check": "npm run lint && node tools/check-site.mjs && node --test tools/site.test.mjs && npm run verify:ui",
     "lint": "eslint .",
     "verify": "node tools/verify.mjs --portable --no-write",
     "verify:ui": "node tools/check-ui.mjs"
