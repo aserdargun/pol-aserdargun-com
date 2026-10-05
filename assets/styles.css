@@ -479,3 +479,41 @@ p, li, .axis, .position, .lang-card { overflow-wrap: anywhere; }
   .compare-row { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); }
   .search input { min-width: 0; }
 }
+
+/* --------------------------- printed page contract ---------------------------
+ * The site ships dark by default and every task view is mostly code. Print media
+ * drops backgrounds, so near-white code text tuned for a dark panel would reach
+ * paper as near-white on white. Reset the palette to ink, stop sticky and fixed
+ * chrome from repeating on every page, and let long code lines wrap instead of
+ * being clipped by the scroll container that only exists on screen. */
+@media print {
+  :root,
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --bg-soft: #ffffff;
+    --bg-card: #ffffff;
+    --bg-code: #ffffff;
+    --line: #b6bcc6;
+    --line-soft: #d8dce3;
+    --fg: #000000;
+    --fg-soft: #262b33;
+    --fg-muted: #4d5561;
+    --tok-kw: #6b2fa0;
+    --tok-ty: #1f4f9c;
+    --tok-bi: #0b6b60;
+    --tok-str: #2f6b12;
+    --tok-num: #9c4410;
+    --tok-com: #4a5560;
+  }
+  @page { margin: 12mm; }
+  body { background: #fff; }
+  header.top { position: static; background: none; backdrop-filter: none; }
+  .search, .skip-link, #toast { display: none; }
+  [data-act^="copy"] { display: none; }
+  .code-wrap { overflow-x: visible; }
+  pre.code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  thead { display: table-header-group; }
+  table.matrix thead th, table.axes-table thead th, table.matrix th.cap { position: static; }
+  .code-wrap, .axis, .lang-card { break-inside: avoid; }
+  a { text-decoration: underline; }
+}

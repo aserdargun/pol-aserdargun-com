@@ -221,3 +221,40 @@ test('app.js re-applies the same title the static head declares', () => {
   assert.ok(m, 'app.js no longer declares a TITLE');
   assert.equal(m[1], APP_TITLE);
 });
+
+/* --------------------------- 5. printed page contract -------------------- */
+
+/** The text of the stylesheet's print block, or '' when there is none. */
+const printCss = () => {
+  const css = read('assets/styles.css');
+  const at = css.indexOf('@media print');
+  return at === -1 ? '' : css.slice(at);
+};
+
+test('printing a code page yields ink on paper, not light text on a dropped panel', () => {
+  const css = printCss();
+  assert.notEqual(css, '', 'assets/styles.css has no @media print block');
+  // Print media drops backgrounds, so the dark panel is gone: the text tokens
+  // themselves have to become ink, for the shipped dark theme and the light one.
+  assert.match(css, /--fg:\s*#000000/i, 'print block does not reset --fg to ink');
+  assert.match(css, /--bg-code:\s*#ffffff/i, 'print block does not reset --bg-code to paper');
+  for (const token of ['--tok-kw', '--tok-ty', '--tok-bi', '--tok-str', '--tok-num', '--tok-com']) {
+    assert.match(css, new RegExp(`${token}:\\s*#`, 'i'), `print block leaves ${token} tuned for a dark panel`);
+  }
+  // The on-screen scroll container would silently clip long lines onto paper.
+  assert.match(css, /pre\.code\s*\{[^}]*white-space:\s*pre-wrap/, 'long code lines are still clipped instead of wrapped in print');
+  assert.match(css, /\.code-wrap\s*\{[^}]*overflow-x:\s*visible/, 'the code scroll container is still hiding overflow in print');
+});
+
+test('printed pages drop the chrome that only makes sense on screen', () => {
+  const css = printCss();
+  assert.notEqual(css, '', 'assets/styles.css has no @media print block');
+  // Sticky and fixed chrome repeats on every sheet; interactive actions are dead
+  // weight on paper.
+  assert.match(css, /header\.top\s*\{[^}]*position:\s*static/, 'the sticky header still repeats in print');
+  assert.match(css, /#toast\s*\{[^}]*display:\s*none/, 'the transient toast still prints');
+  assert.match(css, /\.search[^{]*\{[^}]*display:\s*none/, 'the search and theme controls still print');
+  assert.match(css, /\[data-act\^=["']copy["']\]\s*\{[^}]*display:\s*none/, 'the copy actions still print');
+  // Table headers belong on every sheet, not only the first one.
+  assert.match(css, /thead\s*\{[^}]*display:\s*table-header-group/, 'table headers are not repeated on each printed page');
+});
