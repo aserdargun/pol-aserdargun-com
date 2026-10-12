@@ -128,7 +128,48 @@ test('the loaded corpus is the one the README describes: 15 languages, 13 tasks'
   for (const t of tasks) {
     assert.ok(t.prompt, `${t.id}: no prompt`);
     assert.ok(t.takeaway, `${t.id}: no takeaway`);
-    assert.ok(Object.keys(t.snippets || {}).length >= 5, `${t.id}: fewer than five languages`);
+  }
+});
+
+/* The corpus is a 13x15 rectangle, and the page's headline claim ("Fifteen ways
+ * to write the same program", "the same thirteen tasks, with code or explicit
+ * scope notes for each language") is only true while it is full. Every hole is
+ * invisible from the outside: app.js renders whichever languages it finds, so a
+ * dropped entry quietly shortens a task page instead of failing. Worse, a
+ * misspelled language id is never rendered at all, and a scope note stripped
+ * from an `na` entry contradicts AGENTS.md ("a language that cannot express a
+ * task says so rather than faking a translation"). The floor of five languages
+ * this assertion used to carry could not see any of it.
+ */
+test('every task resolves to every language, and every gap states itself', () => {
+  const { W, error } = loadData();
+  assert.equal(error, null, error && `the corpus could not be loaded: ${error.message}`);
+  const tasks = Object.keys(W).filter(k => k.startsWith('RECIPES_')).flatMap(k => W[k]);
+  const known = new Set(W.LANGUAGES.map(l => l.id));
+
+  for (const t of tasks) {
+    const snippets = t.snippets || {};
+    /* A key the language registry does not know is dead weight: visibleLangs()
+     * walks the registry, so the snippet is never rendered and never counted. */
+    for (const lang of Object.keys(snippets)) {
+      assert.ok(known.has(lang),
+        `${t.id}: snippet is keyed "${lang}", which is not one of the ${known.size} registered languages`);
+    }
+    /* The rectangle itself: a language that cannot express the task must say so
+     * with an `na` note, not vanish from the row. */
+    for (const lang of known) {
+      assert.ok(Object.hasOwn(snippets, lang),
+        `${t.id}: no entry for ${lang} — every task needs code or an explicit scope note for every language`);
+    }
+    for (const [lang, s] of Object.entries(snippets)) {
+      if (s.na) {
+        assert.ok(String(s.note || '').trim(),
+          `${t.id}/${lang}: marked outside scope with an empty note — an omission must state the reason`);
+      } else {
+        assert.ok(String(s.code || '').trim(), `${t.id}/${lang}: no code and no scope note`);
+        assert.ok(String(s.note || '').trim(), `${t.id}/${lang}: no note explaining the example`);
+      }
+    }
   }
 });
 
