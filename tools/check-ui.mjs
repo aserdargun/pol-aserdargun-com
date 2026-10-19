@@ -20,7 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import vm from 'node:vm';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -261,6 +261,143 @@ if (!fs.existsSync(CHROME)) {
     }
   }
   if (shots) console.log('screenshots written to ' + outDir);
+}
+
+/* ------------------------ 3. keyboard route handoff ---------------------- */
+/* --dump-dom cannot press a key or follow focus, so this check drives Chrome
+ * over the DevTools protocol instead. Node 22 ships WebSocket and fetch, so
+ * the whole thing stays dependency-free like the rest of the gate.
+ *
+ * The defect it guards against is invisible in a DOM dump: a route change
+ * replaces the whole of #app, destroying the focused element, and focus falls
+ * back to <body>. Nothing looks wrong in the markup — the page renders fine —
+ * but a screen reader announces nothing for the new route and the next Tab
+ * restarts from the top of the document. */
+async function checkFocusHandoff() {
+  const port = 9222 + (process.pid % 1000);
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'pol-focus-'));
+  const chrome = spawn(CHROME, ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
+    `--user-data-dir=${profile}`, `--remote-debugging-port=${port}`, 'about:blank'], { stdio: 'ignore' });
+  const cleanup = () => {
+    chrome.kill();
+    /* Chrome writes its profile asynchronously: killing it mid-write leaves
+     * entries that a single rmdir refuses, which would turn a clean failure
+     * report into an unhandled ENOTEMPTY crash. */
+    try {
+      fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    } catch { /* a leftover temp profile is not worth failing the gate over */ }
+  };
+
+  try {
+    /* Wait for the debugging endpoint rather than for the process. */
+    let target = null;
+    for (let attempt = 0; attempt < 60 && !target; attempt++) {
+      try {
+        const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+        target = list.find((t) => t.type === 'page');
+      } catch { /* not listening yet */ }
+      if (!target) await new Promise((r) => setTimeout(r, 150));
+    }
+    if (!target) {
+      problems.push('focus check: Chrome never exposed a debugging target');
+      return;
+    }
+
+    const socket = new WebSocket(target.webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => {
+      socket.addEventListener('open', resolve, { once: true });
+      socket.addEventListener('error', () => reject(new Error('devtools socket failed')), { once: true });
+    });
+
+    let nextId = 0;
+    const pending = new Map();
+    socket.addEventListener('message', (event) => {
+      const message = JSON.parse(event.data);
+      if (message.id && pending.has(message.id)) {
+        pending.get(message.id)(message);
+        pending.delete(message.id);
+      }
+    });
+    const send = (method, params = {}) => new Promise((resolve) => {
+      const id = ++nextId;
+      pending.set(id, resolve);
+      socket.send(JSON.stringify({ id, method, params }));
+    });
+    const evaluate = async (expression) => {
+      const reply = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+      return reply.result && reply.result.result ? reply.result.result.value : undefined;
+    };
+
+    await send('Page.enable');
+    await send('Runtime.enable');
+    await send('Page.navigate', { url: 'file://' + path.join(ROOT, 'index.html') + '#/concepts' });
+    await new Promise((r) => setTimeout(r, 1500));
+
+    /* 1. A route change must hand focus to the new view. */
+    const navigated = await evaluate(`(() => {
+      const link = document.querySelector('#app a.concept-card');
+      if (!link) return { error: 'no in-app link to follow' };
+      link.focus();
+      const before = document.activeElement.tagName;
+      link.click();
+      return new Promise((resolve) => setTimeout(() => resolve({
+        before,
+        after: document.activeElement.tagName,
+        id: document.activeElement.id || '',
+        landedOnApp: document.activeElement === document.getElementById('app'),
+        heading: (document.querySelector('#app h1') || {}).textContent || ''
+      }), 300));
+    })()`);
+    if (!navigated || navigated.error) {
+      problems.push(`focus check: ${(navigated && navigated.error) || 'navigation probe did not return'}`);
+    } else if (navigated.before !== 'A') {
+      problems.push('focus check: the probe link never took focus, so the handoff was not exercised');
+    } else if (!navigated.landedOnApp) {
+      problems.push(
+        `navigating inside the app left focus on <${navigated.after.toLowerCase()}> instead of the new view ` +
+        `("${navigated.heading.trim()}"): a screen reader announces nothing and the next Tab restarts at the top of the page`
+      );
+    }
+
+    /* 2. Typing in the live search box must NOT lose the caret: render() runs on
+     *    every keystroke, and an ungated handoff would steal focus on the first
+     *    character. This is the half a naive fix gets wrong. */
+    const typing = await evaluate(`(() => {
+      const input = document.getElementById('search-input');
+      location.hash = '#/';
+      return new Promise((resolve) => setTimeout(() => {
+        input.focus();
+        location.hash = '#/search';
+        setTimeout(() => {
+          input.focus();
+          input.value = 'ba';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          setTimeout(() => resolve({
+            stillTyping: document.activeElement === input,
+            tag: document.activeElement.tagName
+          }), 300);
+        }, 300);
+      }, 300));
+    })()`);
+    if (typing && !typing.stillTyping) {
+      problems.push(
+        `typing in the search box moved focus to <${String(typing.tag).toLowerCase()}>: the live re-render must not steal the caret`
+      );
+    }
+
+    socket.close();
+    console.log('focus: route handoff and live-search caret both verified');
+  } catch (error) {
+    problems.push(`focus check could not run: ${String(error.message).slice(0, 160)}`);
+  } finally {
+    cleanup();
+  }
+}
+
+if (!fs.existsSync(CHROME)) {
+  console.log('chrome not found — skipped the browser check');
+} else {
+  await checkFocusHandoff();
 }
 
 if (problems.length) {

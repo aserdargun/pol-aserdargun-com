@@ -551,6 +551,10 @@
     return { parts, params: new URLSearchParams(query || '') };
   }
 
+  /* The route the page is currently showing, as "section/id". render() compares
+   * against it to decide whether focus has to follow: see the end of the body. */
+  let renderedRoute = null;
+
   function render() {
     const { parts, params } = parseHash();
     const view = parts[0] || '';
@@ -589,6 +593,21 @@
     const input = document.getElementById('search-input');
     if (input && view === 'search') input.value = params.get('q') || '';
     document.title = TITLE;
+
+    /* A route change replaces the whole of #app, so whatever held focus — a
+     * link inside the view the user just left — is destroyed with it. The
+     * browser then drops focus to <body>, which is invisible to a screen
+     * reader and sends the next Tab from the top of the document instead of
+     * from the new view. Moving focus to #app (tabindex="-1", and already the
+     * skip link's target) is the same handoff a full page load performs.
+     *
+     * It is gated on the route actually changing, because render() is also
+     * called on every keystroke of the live search box. Yanking focus there
+     * would steal the caret out of the field the user is typing into on the
+     * first character, so only a genuine navigation moves focus. */
+    const route = parts.join('/');
+    if (renderedRoute !== null && renderedRoute !== route) app.focus();
+    renderedRoute = route;
   }
 
   /* ------------------------------ actions -------------------------------- */
